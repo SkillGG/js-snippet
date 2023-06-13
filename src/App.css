@@ -1,0 +1,68 @@
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    padding: 0;
+}
+
+#root {
+    display: grid;
+    grid-auto-flow: column;
+    grid-auto-columns: 1fr 1fr;
+    width: 100vw;
+}
+
+#root > div {
+    border: 1px solid black;
+}
+
+#out {
+    padding-inline: 25px;
+}
+
+.snippet {
+    border: 1px solid black;
+    padding: 15px;
+    margin: 5px;
+}
+
+.snippet_name {
+    font-weight: bolder;
+    font-size: 2em;
+}
+
+ul#settings li:last-child {
+    font-weight: normal;
+    cursor: pointer;
+}
+
+.addSnippet {
+    border: 1px solid black;
+    width: fit-content;
+    display: inline-block;
+    margin-right: 5px;
+    padding: 5px;
+}
+
+.addSnippetBlock {
+    margin-inline: auto;
+    width: fit-content;
+    cursor: pointer;
+    height: 100%;
+}
+.addSnippetFlex {
+    display: flex;
+    align-items: center;
+}
+
+button {
+    float: right;
+}
+
+.w3-code {
+    border: 1px solid black;
+    padding: 5px;
+    margin-bottom: 5px;
+}
