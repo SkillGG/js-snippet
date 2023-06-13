@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import CustomJSSnippets from "./cjs";
+import Footer from "./Footer";
 import "./App.css";
 
 function App() {
@@ -35,6 +36,7 @@ function App() {
                 </button>
                 <span>{copied}</span>
             </div>
+            <Footer />
         </>
     );
 }

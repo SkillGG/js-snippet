@@ -1,0 +1,11 @@
+footer {
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    overflow: hidden;
+    color: lightblue;
+    padding: 5px 10px;
+    box-sizing: border-box;
+    background-color: #04080f;
+    width: 100vw;
+}
