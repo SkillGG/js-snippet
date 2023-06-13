@@ -1,0 +1,12 @@
+{
+    "json.schemas": [
+        {
+            "fileMatch": ["*.repo.json"],
+            "url": "/public/repo.schema.json"
+        },
+        {
+            "fileMatch": ["*.snippet.json"],
+            "url": "/public/snippet.schema.json"
+        }
+    ]
+}

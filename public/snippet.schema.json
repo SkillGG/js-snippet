@@ -1,0 +1,62 @@
+{
+    "type": "object",
+    "properties": {
+        "code": {
+            "type": "string"
+        },
+        "name": {
+            "type": "string",
+            "pattern": "^[a-zA-Z0-9_-]+$"
+        },
+        "placeholders": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "string",
+                        "pattern": "^[A-Za-z0-9_ ]+$"
+                    },
+                    "needle": {
+                        "type": "string"
+                    },
+                    "multiline": {
+                        "type": "boolean"
+                    },
+                    "required": {
+                        "type": "object",
+                        "properties": {
+                            "patternString": {
+                                "type": "string"
+                            },
+                            "default": {
+                                "type": "string"
+                            }
+                        },
+                        "required": ["patternString"]
+                    }
+                },
+                "required": ["id", "needle", "multiline", "required"]
+            }
+        },
+        "overrideMode": {
+            "enum": ["overwrite", "duplicate"]
+        },
+        "imports": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "properties": {
+                    "link": {
+                        "type": "string"
+                    },
+                    "overrideMode": {
+                        "enum": ["overwrite", "duplicate"]
+                    }
+                },
+                "required": ["link"]
+            }
+        }
+    },
+    "required": ["code", "name", "placeholders", "overrideMode"]
+}

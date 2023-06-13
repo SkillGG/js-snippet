@@ -1,0 +1,29 @@
+{
+    "type": "object",
+    "properties": {
+        "repoID": {
+            "type": "string"
+        },
+        "snippetLinks": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "properties": {
+                    "repoID": {
+                        "type": "string",
+                        "pattern": "^[a-z0-9_]+$"
+                    },
+                    "name": {
+                        "type": "string",
+                        "pattern": "^[a-zA-Z0-9_]+$"
+                    },
+                    "link": {
+                        "type": "string"
+                    }
+                },
+                "required": ["repoID", "name", "link"]
+            }
+        }
+    },
+    "required": ["repoID", "snippetLinks"]
+}

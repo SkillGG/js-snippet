@@ -1,9 +1,13 @@
 import { FC, useEffect, useState } from "react";
-import { Placeholder, Snippet } from "./snippet/snippet";
+import { Placeholder, Snippet } from "../snippet/snippet";
+import NewSnippetDialog from "./NewSnippetDialog/NewSnippetDialog";
+import WebSnippetDialog from "./WebSnippetDialog/WebSnippetDialog";
 
 interface CustomJSSnippetsProps {
     setJS: React.Dispatch<React.SetStateAction<string>>;
 }
+
+const DEFAULT_PLACEHOLDER_REGEX = "^[a-zA-Z0-9]+$";
 
 const CustomJSSnippets: FC<CustomJSSnippetsProps> = ({ setJS }) => {
     const [snippets, setSnippets] = useState<Snippet[]>([]);
@@ -14,6 +18,27 @@ const CustomJSSnippets: FC<CustomJSSnippetsProps> = ({ setJS }) => {
     }>({});
 
     const [erroneous, setErroneous] = useState<false | string>(false);
+
+    const validateValue = (
+        ev: React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement>,
+        snippet: Snippet,
+        ph: Placeholder
+    ) => {
+        const patternRX = new RegExp(ph.required.patternString);
+        const value = ev.target.value;
+        console.log(patternRX, value, !patternRX.exec(value));
+        if (!patternRX.exec(value)) {
+            ev.target.style.borderColor = "red";
+            setErroneous(
+                `<b style='font-style:italic; color:red;'>${snippet.name}.${ph.id}</b>: wrong pattern!
+                Correct pattern:
+                <b style="color:lightblue">${ph.required.patternString}</b>\n`
+            );
+        } else {
+            ev.target.style.borderColor = "unset";
+            setErroneous(false);
+        }
+    };
 
     useEffect(() => {
         snippets.forEach((snip) => {
@@ -92,7 +117,6 @@ const CustomJSSnippets: FC<CustomJSSnippetsProps> = ({ setJS }) => {
                     });
                     return p + `/* Snippet ${n.name} */\n` + snipCode + "\n\n";
                 }, "");
-                console.log("outcode", code);
                 return code;
             });
         else
@@ -101,8 +125,56 @@ const CustomJSSnippets: FC<CustomJSSnippetsProps> = ({ setJS }) => {
             });
     }, [snippets, placeholderValues, setJS, erroneous]);
 
+    const addSnippet = (
+        snippetToAdd: Snippet,
+        importSnippets: Snippet[] = []
+    ) => {
+        for (let i = 0; i < importSnippets.length; i++)
+            addSnippet(importSnippets[i]);
+        if (snippetToAdd.overrideMode === "overwrite") {
+            setSnippets((p) => {
+                if (p.find((s) => s.name === snippetToAdd.name))
+                    return p.map((snip) =>
+                        snip.name === snippetToAdd.name ? snippetToAdd : snip
+                    );
+                else return [...p, snippetToAdd];
+            });
+        } else {
+            const sameSnippets = snippets.filter((snip) =>
+                new RegExp(
+                    `^${snippetToAdd.name.replace(/-/g, "\\-")}(\\(\\d+\\))?`
+                ).exec(snip.name)
+            );
+            if (sameSnippets.length > 0) {
+                const lastSnip = sameSnippets[sameSnippets.length - 1];
+                const snipRx = /\((\d+)\)/.exec(lastSnip.name);
+                const snipNum = snipRx ? parseInt(snipRx[1], 10) + 1 : 1;
+                snippetToAdd.name = `${snippetToAdd.name}(${snipNum})`;
+            }
+            setSnippets((p) => {
+                return [...p, { ...snippetToAdd }];
+            });
+        }
+    };
+
+    const removeSnippet = (snippetName: string) => {
+        setSnippets((p) => {
+            return p.filter((snip) => snip.name !== snippetName);
+        });
+        setPlaceholderValues((pv) => {
+            const x = { ...pv };
+            delete x[snippetName];
+            return x;
+        });
+    };
+
     return (
         <>
+            <NewSnippetDialog
+                addSnippet={addSnippet}
+                snippetNumber={snippets.length + 1}
+            />
+            <WebSnippetDialog addSnippet={addSnippet} />
             <div>
                 {snippets.map((snippet) => {
                     return (
@@ -127,6 +199,11 @@ const CustomJSSnippets: FC<CustomJSSnippetsProps> = ({ setJS }) => {
                                         });
                                     }}
                                 />
+                                <button
+                                    onClick={() => removeSnippet(snippet.name)}
+                                >
+                                    Remove
+                                </button>
                             </div>
                             {!snippet.readonly && (
                                 <>
@@ -167,8 +244,7 @@ const CustomJSSnippets: FC<CustomJSSnippetsProps> = ({ setJS }) => {
                                                             placeholder="default"
                                                             value={
                                                                 ph.required
-                                                                    .pattern
-                                                                    .source
+                                                                    .patternString
                                                             }
                                                             onChange={(ev) => {
                                                                 setSnippets(
@@ -197,10 +273,10 @@ const CustomJSSnippets: FC<CustomJSSnippetsProps> = ({ setJS }) => {
                                                                                                             required:
                                                                                                                 {
                                                                                                                     ...x.required,
-                                                                                                                    pattern:
-                                                                                                                        new RegExp(
-                                                                                                                            ev.target.value
-                                                                                                                        ),
+                                                                                                                    patternString:
+                                                                                                                        ev
+                                                                                                                            .target
+                                                                                                                            .value,
                                                                                                                 },
                                                                                                         };
                                                                                                     return x;
@@ -303,7 +379,7 @@ const CustomJSSnippets: FC<CustomJSSnippetsProps> = ({ setJS }) => {
                                                     );
                                                     const pattern = prompt(
                                                         "Allowed value pattern?",
-                                                        "[a-zA-Z0-9]+"
+                                                        DEFAULT_PLACEHOLDER_REGEX
                                                     );
                                                     const multiline = !!prompt(
                                                         "Is Multiline?",
@@ -321,11 +397,9 @@ const CustomJSSnippets: FC<CustomJSSnippetsProps> = ({ setJS }) => {
                                                                 needle,
                                                                 multiline,
                                                                 required: {
-                                                                    pattern:
-                                                                        new RegExp(
-                                                                            pattern ||
-                                                                                "[a-zA-Z0-9]+"
-                                                                        ),
+                                                                    patternString:
+                                                                        pattern ||
+                                                                        DEFAULT_PLACEHOLDER_REGEX,
                                                                     default:
                                                                         defaultValue ||
                                                                         undefined,
@@ -354,24 +428,89 @@ const CustomJSSnippets: FC<CustomJSSnippetsProps> = ({ setJS }) => {
                                                 Add placeholder
                                             </li>
                                         </ul>
+                                        <button
+                                            onClick={() => {
+                                                navigator.clipboard.writeText(
+                                                    JSON.stringify(
+                                                        {
+                                                            ...snippet,
+                                                            name: snippet.name.replace(
+                                                                /\(\d+\)/g,
+                                                                ""
+                                                            ),
+                                                            readonly: undefined,
+                                                        },
+                                                        undefined,
+                                                        1
+                                                    )
+                                                );
+                                            }}
+                                        >
+                                            Get JSON
+                                        </button>
                                     </h4>
                                 </>
                             )}
-                            {Object.keys(placeholderValues[snippet.name])
-                                .length > 0 && (
-                                <h4>
-                                    Placeholders (values):
-                                    <ul>
-                                        {snippet.placeholders.map((ph) => {
-                                            return (
-                                                <li
-                                                    key={`${snippet.name}_${ph.needle}_value`}
-                                                >
-                                                    {ph.id}:
-                                                    {ph.multiline ? (
-                                                        <>
-                                                            <br />
-                                                            <textarea
+                            {placeholderValues[snippet.name] &&
+                                Object.keys(placeholderValues[snippet.name])
+                                    .length > 0 && (
+                                    <h4>
+                                        Placeholders (values):
+                                        <ul>
+                                            {snippet.placeholders.map((ph) => {
+                                                return (
+                                                    <li
+                                                        key={`${snippet.name}_${ph.needle}_value`}
+                                                    >
+                                                        {ph.id}:
+                                                        {ph.multiline ? (
+                                                            <>
+                                                                <br />
+                                                                <textarea
+                                                                    value={
+                                                                        placeholderValues?.[
+                                                                            snippet
+                                                                                .name
+                                                                        ]?.[
+                                                                            ph
+                                                                                .id
+                                                                        ] || ""
+                                                                    }
+                                                                    onChange={(
+                                                                        ev
+                                                                    ) => {
+                                                                        validateValue(
+                                                                            ev,
+                                                                            snippet,
+                                                                            ph
+                                                                        );
+                                                                        setPlaceholderValues(
+                                                                            (
+                                                                                p
+                                                                            ) => {
+                                                                                return {
+                                                                                    ...p,
+                                                                                    [snippet.name]:
+                                                                                        {
+                                                                                            ...p[
+                                                                                                snippet
+                                                                                                    .name
+                                                                                            ],
+                                                                                            [ph.id]:
+                                                                                                ev
+                                                                                                    .target
+                                                                                                    .value ||
+                                                                                                "",
+                                                                                        },
+                                                                                };
+                                                                            }
+                                                                        );
+                                                                    }}
+                                                                />
+                                                            </>
+                                                        ) : (
+                                                            <input
+                                                                type="text"
                                                                 value={
                                                                     placeholderValues?.[
                                                                         snippet
@@ -383,27 +522,11 @@ const CustomJSSnippets: FC<CustomJSSnippetsProps> = ({ setJS }) => {
                                                                 onChange={(
                                                                     ev
                                                                 ) => {
-                                                                    if (
-                                                                        !ph.required.pattern.exec(
-                                                                            ev
-                                                                                .target
-                                                                                .value
-                                                                        )
-                                                                    ) {
-                                                                        ev.target.style.borderColor =
-                                                                            "red";
-                                                                        setErroneous(
-                                                                            `<b style='font-style:italic; color:red;'>${snippet.name}.${ph.id}</b>: wrong pattern!
-                                                                        Correct pattern:
-                                                                        <b style="color:lightblue">${ph.required.pattern.source}</b>\n`
-                                                                        );
-                                                                    } else {
-                                                                        ev.target.style.borderColor =
-                                                                            "unset";
-                                                                        setErroneous(
-                                                                            false
-                                                                        );
-                                                                    }
+                                                                    validateValue(
+                                                                        ev,
+                                                                        snippet,
+                                                                        ph
+                                                                    );
                                                                     setPlaceholderValues(
                                                                         (p) => {
                                                                             return {
@@ -425,44 +548,13 @@ const CustomJSSnippets: FC<CustomJSSnippetsProps> = ({ setJS }) => {
                                                                     );
                                                                 }}
                                                             />
-                                                        </>
-                                                    ) : (
-                                                        <input
-                                                            type="text"
-                                                            value={
-                                                                placeholderValues?.[
-                                                                    snippet.name
-                                                                ]?.[ph.id] || ""
-                                                            }
-                                                            onChange={(ev) => {
-                                                                setPlaceholderValues(
-                                                                    (p) => {
-                                                                        return {
-                                                                            ...p,
-                                                                            [snippet.name]:
-                                                                                {
-                                                                                    ...p[
-                                                                                        snippet
-                                                                                            .name
-                                                                                    ],
-                                                                                    [ph.id]:
-                                                                                        ev
-                                                                                            .target
-                                                                                            .value ||
-                                                                                        "",
-                                                                                },
-                                                                        };
-                                                                    }
-                                                                );
-                                                            }}
-                                                        />
-                                                    )}
-                                                </li>
-                                            );
-                                        })}
-                                    </ul>
-                                </h4>
-                            )}
+                                                        )}
+                                                    </li>
+                                                );
+                                            })}
+                                        </ul>
+                                    </h4>
+                                )}
                         </div>
                     );
                 })}
@@ -475,28 +567,11 @@ const CustomJSSnippets: FC<CustomJSSnippetsProps> = ({ setJS }) => {
                     <div
                         className="addSnippet"
                         onClick={() => {
-                            let name: string | null;
-                            do {
-                                name = prompt(
-                                    "Snippet ID?",
-                                    `snippet${snippets.length + 1}`
+                            const dialog: HTMLDialogElement | null =
+                                document.querySelector(
+                                    "dialog#newSnippetDialog"
                                 );
-                                if (name === null) return;
-                            } while (
-                                !/^[a-z0-9_-]+$/i.exec(name) &&
-                                !snippets.find((snip) => snip.name === name)
-                            );
-                            if (name) {
-                                const newSnippet: Snippet = {
-                                    name,
-                                    code: "",
-                                    readonly: false,
-                                    placeholders: [],
-                                };
-                                setSnippets((p) => {
-                                    return [...p, newSnippet];
-                                });
-                            }
+                            if (dialog) dialog.showModal();
                         }}
                     >
                         Add snippet
@@ -504,7 +579,11 @@ const CustomJSSnippets: FC<CustomJSSnippetsProps> = ({ setJS }) => {
                     <div
                         className="addSnippet"
                         onClick={() => {
-                            alert("TODO: Implement");
+                            const dialog: HTMLDialogElement | null =
+                                document.querySelector(
+                                    "dialog#webSnippetDialog"
+                                );
+                            if (dialog) dialog.showModal();
                         }}
                     >
                         Load from web

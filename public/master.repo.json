@@ -1,0 +1,15 @@
+{
+    "repoID": "master",
+    "snippetLinks": [
+        {
+            "repoID": "master",
+            "name": "replaceSingle",
+            "link": "./snippets/replaceSingle.snippet.json"
+        },
+        {
+            "repoID": "master",
+            "name": "lnreader_base",
+            "link": "./snippets/LNReader.snippet.json"
+        }
+    ]
+}

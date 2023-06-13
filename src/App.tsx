@@ -1,7 +1,8 @@
 import { useEffect, useState } from "react";
-import CustomJSSnippets from "./cjs";
+import CustomJSSnippets from "./CustomJsSnippets/CustomJsSnippets";
 import Footer from "./Footer";
 import "./App.css";
+
 
 function App() {
     const [outJS, setOutJS] = useState("");
@@ -25,10 +26,9 @@ function App() {
                     }}
                 ></div>
                 <button
+                    id="copyCode"
                     onClick={() => {
-                        navigator.clipboard.writeText(
-                            outJS
-                        );
+                        navigator.clipboard.writeText(outJS);
                         setCopied("Copied to clipboard!");
                     }}
                 >

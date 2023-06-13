@@ -1,0 +1,7 @@
+{
+    "code": "const chapter = document.querySelector('chapter');",
+    "name": "lnreader_base",
+    "placeholders": [],
+    "overrideMode": "overwrite",
+    "readonly": true
+}

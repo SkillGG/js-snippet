@@ -1,0 +1,19 @@
+dialog {
+    padding: 0;
+}
+
+dialog.dialogContent {
+    padding: 15px;
+    display: block;
+}
+
+#newSnippetForm {
+    padding: 10px;
+    display: block;
+}
+.dialogSaveButtons {
+    width: fit-content;
+    height: fit-content;
+    margin-inline: auto;
+    margin-top: 10px;
+}

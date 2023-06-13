@@ -1,0 +1,30 @@
+{
+    "code": "chapter.innerHTML = chapter.innerHTML.replace(/$$/, \"##\");",
+    "name": "replaceSingle",
+    "placeholders": [
+        {
+            "id": "Replace",
+            "needle": "$$",
+            "multiline": false,
+            "required": {
+                "patternString": "^[^\\r\\n\\t\\f\\v]*$",
+                "default": "^.*$"
+            }
+        },
+        {
+            "id": "With",
+            "needle": "##",
+            "multiline": false,
+            "required": {
+                "patternString": "^[^\\r\\n\\t\\f\\v]*$"
+            }
+        }
+    ],
+    "overrideMode": "duplicate",
+    "imports": [
+        {
+            "overrideMode": "overwrite",
+            "link": "./snippets/LNReader.snippet.json"
+        }
+    ]
+}
