@@ -87,7 +87,7 @@ const CustomJSSnippets: FC<CustomJSSnippetsProps> = ({ setJS }) => {
                             ""
                     );
                 });
-                return p + `// Snippet ${n.name}\n` + snipCode + "\n\n";
+                return p + `/* Snippet ${n.name} */\n` + snipCode + "\n\n";
             }, "");
             console.log("outcode", code);
             return code;
@@ -365,7 +365,7 @@ const CustomJSSnippets: FC<CustomJSSnippetsProps> = ({ setJS }) => {
                                 );
                                 if (name === null) return;
                             } while (
-                                !/^[a-z0-9]+$/i.exec(name) &&
+                                !/^[a-z0-9_-]+$/i.exec(name) &&
                                 !snippets.find((snip) => snip.name === name)
                             );
                             if (name) {
