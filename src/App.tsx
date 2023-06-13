@@ -21,13 +21,13 @@ function App() {
                 <div
                     className="w3-code jsHigh notranslate"
                     dangerouslySetInnerHTML={{
-                        __html: outJS.replace(/\n/, "<br/>"),
+                        __html: outJS.replace(/\n/g, "<br/>"),
                     }}
                 ></div>
                 <button
                     onClick={() => {
                         navigator.clipboard.writeText(
-                            outJS.replace(/<br class="span"\/>/g, "\n")
+                            outJS
                         );
                         setCopied("Copied to clipboard!");
                     }}

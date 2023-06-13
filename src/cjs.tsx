@@ -87,8 +87,9 @@ const CustomJSSnippets: FC<CustomJSSnippetsProps> = ({ setJS }) => {
                             ""
                     );
                 });
-                return p + `// Snippet ${n.name}\n` + snipCode + "\n";
+                return p + `// Snippet ${n.name}\n` + snipCode + "\n\n";
             }, "");
+            console.log("outcode", code);
             return code;
         });
     }, [snippets, placeholderValues, setJS]);
