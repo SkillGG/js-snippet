@@ -13,6 +13,8 @@ const CustomJSSnippets: FC<CustomJSSnippetsProps> = ({ setJS }) => {
         };
     }>({});
 
+    const [erroneous, setErroneous] = useState<false | string>(false);
+
     useEffect(() => {
         snippets.forEach((snip) => {
             if (placeholderValues[snip.name] === undefined) {
@@ -76,22 +78,27 @@ const CustomJSSnippets: FC<CustomJSSnippetsProps> = ({ setJS }) => {
 
         // generate outJS
 
-        setJS(() => {
-            const code = snippets.reduce((p, n) => {
-                let snipCode: string = n.code;
-                n.placeholders.forEach((ph) => {
-                    snipCode = snipCode.replace(
-                        ph.needle,
-                        placeholderValues?.[n.name]?.[ph.id] ||
-                            ph.required.default ||
-                            ""
-                    );
-                });
-                return p + `/* Snippet ${n.name} */\n` + snipCode + "\n\n";
-            }, "");
-            console.log("outcode", code);
-            return code;
-        });
+        if (!erroneous)
+            setJS(() => {
+                const code = snippets.reduce((p, n) => {
+                    let snipCode: string = n.code;
+                    n.placeholders.forEach((ph) => {
+                        snipCode = snipCode.replace(
+                            ph.needle,
+                            placeholderValues?.[n.name]?.[ph.id] ||
+                                ph.required.default ||
+                                ""
+                        );
+                    });
+                    return p + `/* Snippet ${n.name} */\n` + snipCode + "\n\n";
+                }, "");
+                console.log("outcode", code);
+                return code;
+            });
+        else
+            setJS((p) => {
+                return `/* Error in ${erroneous} */`;
+            });
     }, [snippets, placeholderValues, setJS]);
 
     return (
@@ -260,6 +267,10 @@ const CustomJSSnippets: FC<CustomJSSnippetsProps> = ({ setJS }) => {
                                                 "Allowed value pattern?",
                                                 "[a-zA-Z0-9]+"
                                             );
+                                            const multiline = !!prompt(
+                                                "Is Multiline?",
+                                                ""
+                                            );
                                             const defaultValue = prompt(
                                                 "Default value?",
                                                 ""
@@ -270,6 +281,7 @@ const CustomJSSnippets: FC<CustomJSSnippetsProps> = ({ setJS }) => {
                                                     {
                                                         id,
                                                         needle,
+                                                        multiline,
                                                         required: {
                                                             pattern: new RegExp(
                                                                 pattern ||
@@ -310,36 +322,91 @@ const CustomJSSnippets: FC<CustomJSSnippetsProps> = ({ setJS }) => {
                                             <li
                                                 key={`${snippet.name}_${ph.needle}_value`}
                                             >
-                                                {ph.needle}:
-                                                <input
-                                                    type="text"
-                                                    value={
-                                                        placeholderValues?.[
-                                                            snippet.name
-                                                        ]?.[ph.id] || ""
-                                                    }
-                                                    onChange={(ev) => {
-                                                        setPlaceholderValues(
-                                                            (p) => {
-                                                                return {
-                                                                    ...p,
-                                                                    [snippet.name]:
-                                                                        {
-                                                                            ...p[
-                                                                                snippet
-                                                                                    .name
-                                                                            ],
-                                                                            [ph.id]:
-                                                                                ev
-                                                                                    .target
-                                                                                    .value ||
-                                                                                "",
-                                                                        },
-                                                                };
+                                                {ph.id}:
+                                                {ph.multiline ? (
+                                                    <>
+                                                        <br />
+                                                        <textarea
+                                                            value={
+                                                                placeholderValues?.[
+                                                                    snippet.name
+                                                                ]?.[ph.id] || ""
                                                             }
-                                                        );
-                                                    }}
-                                                />
+                                                            onChange={(ev) => {
+                                                                if (
+                                                                    !ph.required.pattern.exec(
+                                                                        ev
+                                                                            .target
+                                                                            .value
+                                                                    )
+                                                                ) {
+                                                                    ev.target.style.borderColor =
+                                                                        "red";
+                                                                    setErroneous(
+                                                                        `<b style='font-style:italic; color:red;'>${snippet.name}.${ph.id}</b>: wrong pattern!
+                                                                        Correct pattern:
+                                                                        <b style="color:lightblue">${ph.required.pattern.source}</b>\n`
+                                                                    );
+                                                                } else {
+                                                                    ev.target.style.borderColor =
+                                                                        "unset";
+                                                                    setErroneous(
+                                                                        false
+                                                                    );
+                                                                }
+                                                                setPlaceholderValues(
+                                                                    (p) => {
+                                                                        return {
+                                                                            ...p,
+                                                                            [snippet.name]:
+                                                                                {
+                                                                                    ...p[
+                                                                                        snippet
+                                                                                            .name
+                                                                                    ],
+                                                                                    [ph.id]:
+                                                                                        ev
+                                                                                            .target
+                                                                                            .value ||
+                                                                                        "",
+                                                                                },
+                                                                        };
+                                                                    }
+                                                                );
+                                                            }}
+                                                        />
+                                                    </>
+                                                ) : (
+                                                    <input
+                                                        type="text"
+                                                        value={
+                                                            placeholderValues?.[
+                                                                snippet.name
+                                                            ]?.[ph.id] || ""
+                                                        }
+                                                        onChange={(ev) => {
+                                                            setPlaceholderValues(
+                                                                (p) => {
+                                                                    return {
+                                                                        ...p,
+                                                                        [snippet.name]:
+                                                                            {
+                                                                                ...p[
+                                                                                    snippet
+                                                                                        .name
+                                                                                ],
+                                                                                [ph.id]:
+                                                                                    ev
+                                                                                        .target
+                                                                                        .value ||
+                                                                                    "",
+                                                                            },
+                                                                    };
+                                                                }
+                                                            );
+                                                        }}
+                                                    />
+                                                )}
                                             </li>
                                         );
                                     })}
