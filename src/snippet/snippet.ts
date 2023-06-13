@@ -8,5 +8,6 @@ export type Placeholder = {
 export type Snippet = {
     code: string;
     name: string;
+    readonly: boolean;
     placeholders: Placeholder[];
 };

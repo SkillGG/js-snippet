@@ -44,7 +44,7 @@ const CustomJSSnippets: FC<CustomJSSnippetsProps> = ({ setJS }) => {
                 });
             }
         });
-    }, []);
+    }, [placeholderValues, snippets]);
 
     useEffect(() => {
         snippets.forEach((snip) => {
@@ -96,10 +96,10 @@ const CustomJSSnippets: FC<CustomJSSnippetsProps> = ({ setJS }) => {
                 return code;
             });
         else
-            setJS((p) => {
+            setJS(() => {
                 return `/* Error in ${erroneous} */`;
             });
-    }, [snippets, placeholderValues, setJS]);
+    }, [snippets, placeholderValues, setJS, erroneous]);
 
     return (
         <>
@@ -107,253 +107,334 @@ const CustomJSSnippets: FC<CustomJSSnippetsProps> = ({ setJS }) => {
                 {snippets.map((snippet) => {
                     return (
                         <div key={`${snippet.name}`} className="snippet">
-                            <div className="snippet_name">{snippet.name}</div>
-                            <h4>
-                                <div>Code:</div>
-                                <textarea
-                                    rows={5}
-                                    cols={100}
-                                    value={snippet.code}
-                                    onChange={(ev) => {
+                            <div className="snippet_name">
+                                {snippet.name}{" "}
+                                <input
+                                    type="checkbox"
+                                    checked={snippet.readonly}
+                                    onChange={() => {
                                         setSnippets((p) => {
-                                            return p.map((sn) => {
-                                                return sn.name === snippet.name
+                                            return p.map((snip) => {
+                                                return snip.name ===
+                                                    snippet.name
                                                     ? {
-                                                          ...sn,
-                                                          code: ev.target.value,
+                                                          ...snip,
+                                                          readonly:
+                                                              !snippet.readonly,
                                                       }
-                                                    : sn;
+                                                    : snip;
                                             });
                                         });
                                     }}
-                                ></textarea>
-                            </h4>
-                            <h4>
-                                Placeholders (settings):
-                                <ul id="settings">
-                                    {snippet.placeholders.map((ph) => {
-                                        return (
-                                            <li
-                                                key={`${snippet.name}_${ph.needle}`}
-                                                id={`${snippet.name}_${ph.needle}`}
-                                            >
-                                                {ph.needle}{" "}
-                                                <input
-                                                    placeholder="default"
-                                                    value={
-                                                        ph.required.pattern
-                                                            .source
-                                                    }
-                                                    onChange={(ev) => {
-                                                        setSnippets((p) => {
-                                                            return p.map(
-                                                                (s) => {
-                                                                    if (
-                                                                        s.name ===
-                                                                        snippet.name
-                                                                    )
-                                                                        return {
-                                                                            ...s,
-                                                                            placeholders:
-                                                                                s.placeholders.map(
-                                                                                    (
-                                                                                        x
-                                                                                    ) => {
-                                                                                        if (
-                                                                                            x.needle ===
-                                                                                            ph.needle
-                                                                                        )
-                                                                                            return {
-                                                                                                ...x,
-                                                                                                required:
-                                                                                                    {
-                                                                                                        ...x.required,
-                                                                                                        pattern:
-                                                                                                            new RegExp(
-                                                                                                                ev.target.value
-                                                                                                            ),
-                                                                                                    },
-                                                                                            };
-                                                                                        return x;
-                                                                                    }
-                                                                                ),
-                                                                        };
-                                                                    else
-                                                                        return s;
-                                                                }
-                                                            );
-                                                        });
-                                                    }}
-                                                />
-                                                <input
-                                                    placeholder="default"
-                                                    value={
-                                                        ph.required.default ||
-                                                        ""
-                                                    }
-                                                    onChange={(ev) => {
-                                                        setSnippets((p) => {
-                                                            return p.map(
-                                                                (s) => {
-                                                                    if (
-                                                                        s.name ===
-                                                                        snippet.name
-                                                                    )
-                                                                        return {
-                                                                            ...s,
-                                                                            placeholders:
-                                                                                s.placeholders.map(
-                                                                                    (
-                                                                                        x
-                                                                                    ) => {
-                                                                                        if (
-                                                                                            x.needle ===
-                                                                                            ph.needle
-                                                                                        )
-                                                                                            return {
-                                                                                                ...x,
-                                                                                                required:
-                                                                                                    {
-                                                                                                        ...x.required,
-                                                                                                        default:
-                                                                                                            ev
-                                                                                                                .target
-                                                                                                                .value,
-                                                                                                    },
-                                                                                            };
-                                                                                        return x;
-                                                                                    }
-                                                                                ),
-                                                                        };
-                                                                    else
-                                                                        return s;
-                                                                }
-                                                            );
-                                                        });
-                                                    }}
-                                                />
-                                            </li>
-                                        );
-                                    })}
-                                    <li
-                                        key={"addplaceholder"}
-                                        onClick={() => {
-                                            let id: string | null;
-                                            do {
-                                                id = prompt(
-                                                    "Placeholder ID?",
-                                                    ""
-                                                );
-                                                if (id === null) return;
-                                            } while (
-                                                !/^[a-z]+$/.exec(id) &&
-                                                snippet.placeholders.find(
-                                                    (ph) => ph.id === id
-                                                )
-                                            );
-                                            let needle: string | null;
-                                            do {
-                                                needle = prompt(
-                                                    "Characters to change?",
-                                                    ""
-                                                );
-                                                if (needle === null) return;
-                                            } while (
-                                                snippet.placeholders.find(
-                                                    (ph) => ph.needle === needle
-                                                )
-                                            );
-                                            const pattern = prompt(
-                                                "Allowed value pattern?",
-                                                "[a-zA-Z0-9]+"
-                                            );
-                                            const multiline = !!prompt(
-                                                "Is Multiline?",
-                                                ""
-                                            );
-                                            const defaultValue = prompt(
-                                                "Default value?",
-                                                ""
-                                            );
-
-                                            if (needle && id) {
-                                                const newPlaceholder: Placeholder =
-                                                    {
-                                                        id,
-                                                        needle,
-                                                        multiline,
-                                                        required: {
-                                                            pattern: new RegExp(
-                                                                pattern ||
-                                                                    "[a-zA-Z0-9]+"
-                                                            ),
-                                                            default:
-                                                                defaultValue ||
-                                                                undefined,
-                                                        },
-                                                    };
-                                                setSnippets((prev) => {
-                                                    return prev.map((snip) => {
-                                                        return snip.name ===
+                                />
+                            </div>
+                            {!snippet.readonly && (
+                                <>
+                                    <h4>
+                                        <div>Code:</div>
+                                        <textarea
+                                            rows={5}
+                                            cols={100}
+                                            value={snippet.code}
+                                            onChange={(ev) => {
+                                                setSnippets((p) => {
+                                                    return p.map((sn) => {
+                                                        return sn.name ===
                                                             snippet.name
                                                             ? {
-                                                                  ...snippet,
-                                                                  placeholders:
-                                                                      [
-                                                                          ...snippet.placeholders,
-                                                                          newPlaceholder,
-                                                                      ],
+                                                                  ...sn,
+                                                                  code: ev
+                                                                      .target
+                                                                      .value,
                                                               }
-                                                            : snip;
+                                                            : sn;
                                                     });
                                                 });
-                                            }
-                                        }}
-                                    >
-                                        Add placeholder
-                                    </li>
-                                </ul>
-                            </h4>
-                            <h4>
-                                Placeholders (values):
-                                <ul>
-                                    {snippet.placeholders.map((ph) => {
-                                        return (
+                                            }}
+                                        ></textarea>
+                                    </h4>
+                                    <h4>
+                                        Placeholders (settings):
+                                        <ul id="settings">
+                                            {snippet.placeholders.map((ph) => {
+                                                return (
+                                                    <li
+                                                        key={`${snippet.name}_${ph.needle}`}
+                                                        id={`${snippet.name}_${ph.needle}`}
+                                                    >
+                                                        {ph.needle}{" "}
+                                                        <input
+                                                            placeholder="default"
+                                                            value={
+                                                                ph.required
+                                                                    .pattern
+                                                                    .source
+                                                            }
+                                                            onChange={(ev) => {
+                                                                setSnippets(
+                                                                    (p) => {
+                                                                        return p.map(
+                                                                            (
+                                                                                s
+                                                                            ) => {
+                                                                                if (
+                                                                                    s.name ===
+                                                                                    snippet.name
+                                                                                )
+                                                                                    return {
+                                                                                        ...s,
+                                                                                        placeholders:
+                                                                                            s.placeholders.map(
+                                                                                                (
+                                                                                                    x
+                                                                                                ) => {
+                                                                                                    if (
+                                                                                                        x.needle ===
+                                                                                                        ph.needle
+                                                                                                    )
+                                                                                                        return {
+                                                                                                            ...x,
+                                                                                                            required:
+                                                                                                                {
+                                                                                                                    ...x.required,
+                                                                                                                    pattern:
+                                                                                                                        new RegExp(
+                                                                                                                            ev.target.value
+                                                                                                                        ),
+                                                                                                                },
+                                                                                                        };
+                                                                                                    return x;
+                                                                                                }
+                                                                                            ),
+                                                                                    };
+                                                                                else
+                                                                                    return s;
+                                                                            }
+                                                                        );
+                                                                    }
+                                                                );
+                                                            }}
+                                                        />
+                                                        <input
+                                                            placeholder="default"
+                                                            value={
+                                                                ph.required
+                                                                    .default ||
+                                                                ""
+                                                            }
+                                                            onChange={(ev) => {
+                                                                setSnippets(
+                                                                    (p) => {
+                                                                        return p.map(
+                                                                            (
+                                                                                s
+                                                                            ) => {
+                                                                                if (
+                                                                                    s.name ===
+                                                                                    snippet.name
+                                                                                )
+                                                                                    return {
+                                                                                        ...s,
+                                                                                        placeholders:
+                                                                                            s.placeholders.map(
+                                                                                                (
+                                                                                                    x
+                                                                                                ) => {
+                                                                                                    if (
+                                                                                                        x.needle ===
+                                                                                                        ph.needle
+                                                                                                    )
+                                                                                                        return {
+                                                                                                            ...x,
+                                                                                                            required:
+                                                                                                                {
+                                                                                                                    ...x.required,
+                                                                                                                    default:
+                                                                                                                        ev
+                                                                                                                            .target
+                                                                                                                            .value,
+                                                                                                                },
+                                                                                                        };
+                                                                                                    return x;
+                                                                                                }
+                                                                                            ),
+                                                                                    };
+                                                                                else
+                                                                                    return s;
+                                                                            }
+                                                                        );
+                                                                    }
+                                                                );
+                                                            }}
+                                                        />
+                                                    </li>
+                                                );
+                                            })}
                                             <li
-                                                key={`${snippet.name}_${ph.needle}_value`}
+                                                key={"addplaceholder"}
+                                                onClick={() => {
+                                                    let id: string | null;
+                                                    do {
+                                                        id = prompt(
+                                                            "Placeholder ID?",
+                                                            ""
+                                                        );
+                                                        if (id === null) return;
+                                                    } while (
+                                                        !/^[a-z]+$/.exec(id) &&
+                                                        snippet.placeholders.find(
+                                                            (ph) => ph.id === id
+                                                        )
+                                                    );
+                                                    let needle: string | null;
+                                                    do {
+                                                        needle = prompt(
+                                                            "Characters to change?",
+                                                            ""
+                                                        );
+                                                        if (needle === null)
+                                                            return;
+                                                    } while (
+                                                        snippet.placeholders.find(
+                                                            (ph) =>
+                                                                ph.needle ===
+                                                                needle
+                                                        )
+                                                    );
+                                                    const pattern = prompt(
+                                                        "Allowed value pattern?",
+                                                        "[a-zA-Z0-9]+"
+                                                    );
+                                                    const multiline = !!prompt(
+                                                        "Is Multiline?",
+                                                        ""
+                                                    );
+                                                    const defaultValue = prompt(
+                                                        "Default value?",
+                                                        ""
+                                                    );
+
+                                                    if (needle && id) {
+                                                        const newPlaceholder: Placeholder =
+                                                            {
+                                                                id,
+                                                                needle,
+                                                                multiline,
+                                                                required: {
+                                                                    pattern:
+                                                                        new RegExp(
+                                                                            pattern ||
+                                                                                "[a-zA-Z0-9]+"
+                                                                        ),
+                                                                    default:
+                                                                        defaultValue ||
+                                                                        undefined,
+                                                                },
+                                                            };
+                                                        setSnippets((prev) => {
+                                                            return prev.map(
+                                                                (snip) => {
+                                                                    return snip.name ===
+                                                                        snippet.name
+                                                                        ? {
+                                                                              ...snippet,
+                                                                              placeholders:
+                                                                                  [
+                                                                                      ...snippet.placeholders,
+                                                                                      newPlaceholder,
+                                                                                  ],
+                                                                          }
+                                                                        : snip;
+                                                                }
+                                                            );
+                                                        });
+                                                    }
+                                                }}
                                             >
-                                                {ph.id}:
-                                                {ph.multiline ? (
-                                                    <>
-                                                        <br />
-                                                        <textarea
+                                                Add placeholder
+                                            </li>
+                                        </ul>
+                                    </h4>
+                                </>
+                            )}
+                            {Object.keys(placeholderValues[snippet.name])
+                                .length > 0 && (
+                                <h4>
+                                    Placeholders (values):
+                                    <ul>
+                                        {snippet.placeholders.map((ph) => {
+                                            return (
+                                                <li
+                                                    key={`${snippet.name}_${ph.needle}_value`}
+                                                >
+                                                    {ph.id}:
+                                                    {ph.multiline ? (
+                                                        <>
+                                                            <br />
+                                                            <textarea
+                                                                value={
+                                                                    placeholderValues?.[
+                                                                        snippet
+                                                                            .name
+                                                                    ]?.[
+                                                                        ph.id
+                                                                    ] || ""
+                                                                }
+                                                                onChange={(
+                                                                    ev
+                                                                ) => {
+                                                                    if (
+                                                                        !ph.required.pattern.exec(
+                                                                            ev
+                                                                                .target
+                                                                                .value
+                                                                        )
+                                                                    ) {
+                                                                        ev.target.style.borderColor =
+                                                                            "red";
+                                                                        setErroneous(
+                                                                            `<b style='font-style:italic; color:red;'>${snippet.name}.${ph.id}</b>: wrong pattern!
+                                                                        Correct pattern:
+                                                                        <b style="color:lightblue">${ph.required.pattern.source}</b>\n`
+                                                                        );
+                                                                    } else {
+                                                                        ev.target.style.borderColor =
+                                                                            "unset";
+                                                                        setErroneous(
+                                                                            false
+                                                                        );
+                                                                    }
+                                                                    setPlaceholderValues(
+                                                                        (p) => {
+                                                                            return {
+                                                                                ...p,
+                                                                                [snippet.name]:
+                                                                                    {
+                                                                                        ...p[
+                                                                                            snippet
+                                                                                                .name
+                                                                                        ],
+                                                                                        [ph.id]:
+                                                                                            ev
+                                                                                                .target
+                                                                                                .value ||
+                                                                                            "",
+                                                                                    },
+                                                                            };
+                                                                        }
+                                                                    );
+                                                                }}
+                                                            />
+                                                        </>
+                                                    ) : (
+                                                        <input
+                                                            type="text"
                                                             value={
                                                                 placeholderValues?.[
                                                                     snippet.name
                                                                 ]?.[ph.id] || ""
                                                             }
                                                             onChange={(ev) => {
-                                                                if (
-                                                                    !ph.required.pattern.exec(
-                                                                        ev
-                                                                            .target
-                                                                            .value
-                                                                    )
-                                                                ) {
-                                                                    ev.target.style.borderColor =
-                                                                        "red";
-                                                                    setErroneous(
-                                                                        `<b style='font-style:italic; color:red;'>${snippet.name}.${ph.id}</b>: wrong pattern!
-                                                                        Correct pattern:
-                                                                        <b style="color:lightblue">${ph.required.pattern.source}</b>\n`
-                                                                    );
-                                                                } else {
-                                                                    ev.target.style.borderColor =
-                                                                        "unset";
-                                                                    setErroneous(
-                                                                        false
-                                                                    );
-                                                                }
                                                                 setPlaceholderValues(
                                                                     (p) => {
                                                                         return {
@@ -375,43 +456,13 @@ const CustomJSSnippets: FC<CustomJSSnippetsProps> = ({ setJS }) => {
                                                                 );
                                                             }}
                                                         />
-                                                    </>
-                                                ) : (
-                                                    <input
-                                                        type="text"
-                                                        value={
-                                                            placeholderValues?.[
-                                                                snippet.name
-                                                            ]?.[ph.id] || ""
-                                                        }
-                                                        onChange={(ev) => {
-                                                            setPlaceholderValues(
-                                                                (p) => {
-                                                                    return {
-                                                                        ...p,
-                                                                        [snippet.name]:
-                                                                            {
-                                                                                ...p[
-                                                                                    snippet
-                                                                                        .name
-                                                                                ],
-                                                                                [ph.id]:
-                                                                                    ev
-                                                                                        .target
-                                                                                        .value ||
-                                                                                    "",
-                                                                            },
-                                                                    };
-                                                                }
-                                                            );
-                                                        }}
-                                                    />
-                                                )}
-                                            </li>
-                                        );
-                                    })}
-                                </ul>
-                            </h4>
+                                                    )}
+                                                </li>
+                                            );
+                                        })}
+                                    </ul>
+                                </h4>
+                            )}
                         </div>
                     );
                 })}
@@ -439,6 +490,7 @@ const CustomJSSnippets: FC<CustomJSSnippetsProps> = ({ setJS }) => {
                                 const newSnippet: Snippet = {
                                     name,
                                     code: "",
+                                    readonly: false,
                                     placeholders: [],
                                 };
                                 setSnippets((p) => {
