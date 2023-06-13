@@ -5,6 +5,8 @@
 body {
     margin: 0;
     padding: 0;
+    background-color: #252729;
+    color: #fefefe;
 }
 
 #root {
@@ -12,6 +14,32 @@ body {
     grid-auto-flow: column;
     grid-auto-columns: 1fr 1fr;
     width: 100vw;
+}
+
+.jscolor {
+    color: #fefefe !important;
+}
+
+.jspropertycolor {
+    color: #fcf !important;
+}
+
+.jsstringcolor {
+    color: #3ff !important;
+}
+
+.jskeywordcolor {
+    color: #3cf !important;
+}
+
+textarea {
+    background-color: #3b3b3b;
+    color: white;
+}
+
+input {
+    background-color: #3b3b3b;
+    color: white;
 }
 
 #root > div {
@@ -39,11 +67,11 @@ ul#settings li:last-child {
 }
 
 .addSnippet {
-    border: 1px solid black;
+    border: 1px solid white;
     width: fit-content;
     display: inline-block;
     margin-right: 5px;
-    padding: 5px;
+    padding: 8px;
 }
 
 .addSnippetBlock {
