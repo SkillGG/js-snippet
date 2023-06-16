@@ -102,3 +102,11 @@ ul#settings li:last-child {
     color: red;
     text-align: center;
 }
+
+.w3overrideLightBlue {
+    color: lightblue !important;
+}
+
+.w3overrideRed {
+    color: red !important;
+}

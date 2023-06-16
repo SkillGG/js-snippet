@@ -1,7 +1,12 @@
 import { FC, useEffect, useState } from "react";
-import { Placeholder, Snippet } from "../snippet/snippet";
+import {
+    Placeholder,
+    Snippet,
+    SnippetPlaceholderValue,
+} from "../snippet/snippet";
 import NewSnippetDialog from "./NewSnippetDialog/NewSnippetDialog";
 import WebSnippetDialog from "./WebSnippetDialog/WebSnippetDialog";
+import { z } from "zod";
 
 interface CustomJSSnippetsProps {
     setJS: React.Dispatch<React.SetStateAction<string>>;
@@ -9,36 +14,60 @@ interface CustomJSSnippetsProps {
 
 const DEFAULT_PLACEHOLDER_REGEX = "^[a-zA-Z0-9]+$";
 
+const LS_SNIPPET_DATA = "cutomJSnippets";
+const LS_SNIPPET_ERRORDATA = "cutomJSnippets_error";
+
+type PlaceHolderError = { name: string; error: string };
+
 const CustomJSSnippets: FC<CustomJSSnippetsProps> = ({ setJS }) => {
     const [snippets, setSnippets] = useState<Snippet[]>([]);
-    const [placeholderValues, setPlaceholderValues] = useState<{
-        [key: string]: {
-            [key: string]: string;
+    const [placeholderValues, setPlaceholderValues] =
+        useState<SnippetPlaceholderValue>({});
+    const [firstLoad, setFirstLoad] = useState(false);
+
+    const [loadError, setLoadError] = useState<string | null>(
+        localStorage.getItem(LS_SNIPPET_ERRORDATA)
+    );
+    const [erroneous, setErroneous] = useState<false | PlaceHolderError[]>(
+        false
+    );
+
+    useEffect(() => {
+        const readFromLS = (): [Snippet[], SnippetPlaceholderValue] | null => {
+            setFirstLoad(true);
+            const lsData = localStorage.getItem(LS_SNIPPET_DATA);
+            if (lsData) {
+                try {
+                    const jsonData = JSON.parse(lsData);
+                    const LSSnippet = Snippet.merge(
+                        z.object({
+                            name: z.string().regex(/^[a-z0-9_-]+(\(\d+\))?$/i),
+                        })
+                    );
+                    const parsedData = z
+                        .tuple([z.array(LSSnippet), SnippetPlaceholderValue])
+                        .safeParse(jsonData);
+                    if (parsedData.success) {
+                        const [sn, spv] = parsedData.data;
+                        setSnippets(() => sn);
+                        setPlaceholderValues(() => spv);
+                    } else throw parsedData.error;
+                } catch (err) {
+                    console.error(err);
+                    localStorage.setItem(LS_SNIPPET_ERRORDATA, lsData);
+                    localStorage.removeItem(LS_SNIPPET_DATA);
+                    return null;
+                }
+            }
+            return null;
         };
-    }>({});
-
-    const [erroneous, setErroneous] = useState<false | string>(false);
-
-    const validateValue = (
-        ev: React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement>,
-        snippet: Snippet,
-        ph: Placeholder
-    ) => {
-        const patternRX = new RegExp(ph.required.patternString);
-        const value = ev.target.value;
-        console.log(patternRX, value, !patternRX.exec(value));
-        if (!patternRX.exec(value)) {
-            ev.target.style.borderColor = "red";
-            setErroneous(
-                `<b style='font-style:italic; color:red;'>${snippet.name}.${ph.id}</b>: wrong pattern!
-                Correct pattern:
-                <b style="color:lightblue">${ph.required.patternString}</b>\n`
-            );
-        } else {
-            ev.target.style.borderColor = "unset";
-            setErroneous(false);
+        const lsData = readFromLS();
+        if (lsData) {
+            const [snips, values] = lsData;
+            setSnippets(() => snips);
+            setPlaceholderValues(() => values);
         }
-    };
+    }, []);
 
     useEffect(() => {
         snippets.forEach((snip) => {
@@ -68,10 +97,63 @@ const CustomJSSnippets: FC<CustomJSSnippetsProps> = ({ setJS }) => {
                     }
                 });
             }
+        });
+
+        const validateValues = (snippet: Snippet) => {
+            const fields = document.querySelectorAll<
+                HTMLInputElement | HTMLTextAreaElement
+            >(`[data-snippet-name="${snippet.name}"]`);
+            if (!fields || !fields.length) return;
+            const hasError: PlaceHolderError[] = [];
+            fields.forEach((field) => {
+                const { value } = field;
+                const phID = field.dataset.snippetPhid;
+                const ph = snippet.placeholders.find((ph) => ph.id === phID);
+                if (!ph) return;
+                try {
+                    const rx = new RegExp(
+                        ph.required.patternString || DEFAULT_PLACEHOLDER_REGEX
+                    );
+                    if (!rx.exec(value)) {
+                        field.style.borderColor = "red";
+                        hasError.push({
+                            name: snippet.name,
+                            error: `/*
+                            \t<b class="w3overrideRed">${snippet.name}.${ph.id}</b>: wrong pattern!
+                            \tCorrect pattern:
+                            \t<b class="w3overrideLightBlue">${ph.required.patternString}</b>
+                            */\n`,
+                        });
+                    } else {
+                        field.style.borderColor = "unset";
+                        setErroneous(false);
+                    }
+                } catch (err) {
+                    return;
+                }
+            });
+            if (hasError.length) {
+                const err = {
+                    name: snippet.name,
+                    error: hasError.reduce((p, n) => p + "\n" + n.error, ""),
+                };
+                setErroneous((prev) => {
+                    return prev ? [...prev, err] : [err];
+                });
+            }
+        };
+        snippets.forEach((snippet) => {
+            validateValues(snippet);
         });
     }, [placeholderValues, snippets]);
 
     useEffect(() => {
+        const saveToLS = () => {
+            if (!firstLoad) return;
+            const data = [snippets, placeholderValues];
+            const saveData = JSON.stringify(data);
+            localStorage.setItem(LS_SNIPPET_DATA, saveData);
+        };
         snippets.forEach((snip) => {
             if (placeholderValues[snip.name] === undefined) {
                 let placeHolders: { [key: string]: string } = {};
@@ -100,30 +182,27 @@ const CustomJSSnippets: FC<CustomJSSnippetsProps> = ({ setJS }) => {
                 });
             }
         });
-
+        const reduceSnippets = (errored: PlaceHolderError[]) => {
+            return snippets.reduce((prev, snip) => {
+                const err = errored.find((sn) => snip.name === sn.name);
+                let snipCode: string = err ? err.error : snip.code;
+                snip.placeholders.forEach((ph) => {
+                    snipCode = snipCode.replace(
+                        ph.needle,
+                        placeholderValues?.[snip.name]?.[ph.id] ||
+                            ph.required.default ||
+                            ""
+                    );
+                });
+                return (
+                    prev + `/* Snippet ${snip.name} */\n` + snipCode + "\n\n"
+                );
+            }, "");
+        };
         // generate outJS
-
-        if (!erroneous)
-            setJS(() => {
-                const code = snippets.reduce((p, n) => {
-                    let snipCode: string = n.code;
-                    n.placeholders.forEach((ph) => {
-                        snipCode = snipCode.replace(
-                            ph.needle,
-                            placeholderValues?.[n.name]?.[ph.id] ||
-                                ph.required.default ||
-                                ""
-                        );
-                    });
-                    return p + `/* Snippet ${n.name} */\n` + snipCode + "\n\n";
-                }, "");
-                return code;
-            });
-        else
-            setJS(() => {
-                return `/* Error in ${erroneous} */`;
-            });
-    }, [snippets, placeholderValues, setJS, erroneous]);
+        saveToLS();
+        setJS(() => reduceSnippets(erroneous || []));
+    }, [snippets, placeholderValues, setJS, erroneous, firstLoad]);
 
     const addSnippet = (
         snippetToAdd: Snippet,
@@ -467,6 +546,13 @@ const CustomJSSnippets: FC<CustomJSSnippetsProps> = ({ setJS }) => {
                                                             <>
                                                                 <br />
                                                                 <textarea
+                                                                    className="placeholderValue"
+                                                                    data-snippet-name={
+                                                                        snippet.name
+                                                                    }
+                                                                    data-snippet-phid={
+                                                                        ph.id
+                                                                    }
                                                                     value={
                                                                         placeholderValues?.[
                                                                             snippet
@@ -479,11 +565,6 @@ const CustomJSSnippets: FC<CustomJSSnippetsProps> = ({ setJS }) => {
                                                                     onChange={(
                                                                         ev
                                                                     ) => {
-                                                                        validateValue(
-                                                                            ev,
-                                                                            snippet,
-                                                                            ph
-                                                                        );
                                                                         setPlaceholderValues(
                                                                             (
                                                                                 p
@@ -510,6 +591,13 @@ const CustomJSSnippets: FC<CustomJSSnippetsProps> = ({ setJS }) => {
                                                             </>
                                                         ) : (
                                                             <input
+                                                                className="placeholderValue"
+                                                                data-snippet-name={
+                                                                    snippet.name
+                                                                }
+                                                                data-snippet-phid={
+                                                                    ph.id
+                                                                }
                                                                 type="text"
                                                                 value={
                                                                     placeholderValues?.[
@@ -522,11 +610,6 @@ const CustomJSSnippets: FC<CustomJSSnippetsProps> = ({ setJS }) => {
                                                                 onChange={(
                                                                     ev
                                                                 ) => {
-                                                                    validateValue(
-                                                                        ev,
-                                                                        snippet,
-                                                                        ph
-                                                                    );
                                                                     setPlaceholderValues(
                                                                         (p) => {
                                                                             return {

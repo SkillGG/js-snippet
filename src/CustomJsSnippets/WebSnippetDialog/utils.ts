@@ -1,10 +1,5 @@
 import { z } from "zod";
-import {
-    Snippet,
-    SnippetRepo,
-    zSnippet,
-    zSnippetLink,
-} from "../../snippet/snippet";
+import { SnippetRepo, Snippet, SnippetLink } from "../../snippet/snippet";
 
 type FetchError = { err: string };
 
@@ -17,7 +12,7 @@ export const fetchRepoData = async (
 ): Promise<Required<SnippetRepo> | FetchError> => {
     const repoSchema = z.object({
         repoID: z.string(),
-        snippetLinks: z.array(zSnippetLink),
+        snippetLinks: z.array(SnippetLink),
     });
     const responseSchema = z.union([repoSchema, z.object({ err: z.string() })]);
     const response = await fetch(url, { signal: abort.signal })
@@ -44,9 +39,9 @@ export const fetchSnippet = async (
     url: string,
     i?: RequestInit
 ): Promise<Snippet | FetchError> => {
-    const responseSchema = zSnippet
-        .omit({ readonly: true })
-        .or(z.object({ err: z.string() }));
+    const responseSchema = Snippet.omit({ readonly: true }).or(
+        z.object({ err: z.string() })
+    );
     const response = await fetch(url, i)
         .then((r) => {
             if (r.ok) return r.json();

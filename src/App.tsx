@@ -3,7 +3,6 @@ import CustomJSSnippets from "./CustomJsSnippets/CustomJsSnippets";
 import Footer from "./Footer";
 import "./App.css";
 
-
 function App() {
     const [outJS, setOutJS] = useState("");
 
@@ -22,7 +21,9 @@ function App() {
                 <div
                     className="w3-code jsHigh notranslate"
                     dangerouslySetInnerHTML={{
-                        __html: outJS.replace(/\n/g, "<br/>"),
+                        __html: outJS
+                            .replace(/\n/g, "<br/>")
+                            .replace(/\t/g, "&emsp;"),
                     }}
                 ></div>
                 <button

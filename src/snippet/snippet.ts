@@ -1,10 +1,8 @@
 import { z } from "zod";
 
-export const zSnippetAddMode = z
-    .literal("overwrite")
-    .or(z.literal("duplicate"));
+export const SnippetAddMode = z.literal("overwrite").or(z.literal("duplicate"));
 
-export const zPlaceholder = z.object({
+export const Placeholder = z.object({
     id: z.string().regex(/^[a-z0-9]+$/i),
     needle: z.string(),
     multiline: z.boolean(),
@@ -14,42 +12,49 @@ export const zPlaceholder = z.object({
     }),
 });
 
-export const zSnippetLink = z.object({
+export const SnippetLink = z.object({
     repoID: z.string(),
     name: z.string(),
     link: z.string(),
 });
 
-export const zSnippet = z.object({
+export const Snippet = z.object({
     code: z.string(),
     name: z.string().regex(/^[a-z0-9_-]+$/i),
     readonly: z.boolean(),
-    placeholders: z.array(zPlaceholder),
-    overrideMode: zSnippetAddMode,
+    placeholders: z.array(Placeholder),
+    overrideMode: SnippetAddMode,
     imports: z
         .array(
             z.object({
-                overrideMode: zSnippetAddMode.optional(),
+                overrideMode: SnippetAddMode.optional(),
                 link: z.string(),
             })
         )
         .optional(),
 });
 
-export const zSnippetRepo = z.object({
+export const SnippetRepo = z.object({
     repoURL: z.string(),
     repoID: z.optional(z.string().regex(/^[a-z0-9_]+$/i)),
-    snippetLinks: z.optional(z.array(zSnippetLink)),
+    snippetLinks: z.optional(z.array(SnippetLink)),
 });
 
-export type SnippetLink = z.infer<typeof zSnippetLink>;
+export const SnippetPlaceholderValue = z.record(
+    z.string(),
+    z.record(z.string(), z.string())
+);
 
-export type SnippetRepo = z.infer<typeof zSnippetRepo>;
+export type SnippetPlaceholderValue = z.infer<typeof SnippetPlaceholderValue>;
 
-export type SnippetAddMode = z.infer<typeof zSnippetAddMode>;
+export type SnippetLink = z.infer<typeof SnippetLink>;
 
-export type Placeholder = z.infer<typeof zPlaceholder> & {
+export type SnippetRepo = z.infer<typeof SnippetRepo>;
+
+export type SnippetAddMode = z.infer<typeof SnippetAddMode>;
+
+export type Placeholder = z.infer<typeof Placeholder> & {
     required: { pattern?: RegExp };
 };
 
-export type Snippet = z.infer<typeof zSnippet>;
+export type Snippet = z.infer<typeof Snippet>;
