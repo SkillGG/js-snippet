@@ -1,0 +1,6 @@
+{
+    "code": "{((chapter)=>{if(!chapter)return;",
+    "name": "multisource_head",
+    "placeholders": [],
+    "overrideMode": "duplicate"
+}

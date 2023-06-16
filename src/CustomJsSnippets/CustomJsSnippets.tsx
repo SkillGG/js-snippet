@@ -137,9 +137,9 @@ const CustomJSSnippets: FC<CustomJSSnippetsProps> = ({ setJS }) => {
                         hasError.push({
                             name: snippet.name,
                             error: `/*
-                            \t<b class="w3overrideRed">${snippet.name}.${ph.id}</b>: wrong pattern!
+                            \t<<b class="w3overrideRed">>${snippet.name}.${ph.id}<</b>>: wrong pattern!
                             \tCorrect pattern:
-                            \t<b class="w3overrideLightBlue">${ph.required.patternString}</b>
+                            \t<<b class="w3overrideLightBlue">>${ph.required.patternString}<</b>>
                             */\n`,
                         });
                     } else {
@@ -301,7 +301,7 @@ const CustomJSSnippets: FC<CustomJSSnippetsProps> = ({ setJS }) => {
                 ...importSnippets.map((s) => s.snippet),
             ].filter((snip) =>
                 new RegExp(
-                    `^${snippetToAdd.name.replace(/-/g, "\\-")}(\\(\\d+\\))?`
+                    `^${snippetToAdd.name.replace(/-/g, "\\-")}(\\(\\d+\\))?$`
                 ).exec(snip.name)
             );
             if (sameSnippets.length > 0) {

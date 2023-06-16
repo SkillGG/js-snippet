@@ -1,0 +1,28 @@
+{
+    "code": "})(document.querySelector(\"$$\".split(\",\").reduce((p,n,i,a)=>p+`${i>0&&i<a.length?\",\":\"\"}body[id=\"source-${n}\"] chapter`,\"\")))}",
+    "name": "multisource",
+    "placeholders": [
+        {
+            "id": "SourceID",
+            "needle": "$$",
+            "multiline": false,
+            "required": {
+                "default": "0",
+                "patternString": "^(\\d+,)*(\\d+)$"
+            }
+        }
+    ],
+    "overrideMode": "duplicate",
+    "imports": [
+        {
+            "overrideMode": "overwrite",
+            "link": "./snippets/LNReader.snippet.json",
+            "linkType": "none"
+        },
+        {
+            "overrideMode": "duplicate",
+            "link": "./snippets/multisource_head.snippet.json",
+            "linkType": "both"
+        }
+    ]
+}

@@ -22,6 +22,14 @@ function App() {
                     className="w3-code jsHigh notranslate"
                     dangerouslySetInnerHTML={{
                         __html: outJS
+                            .replace(/<</g, "\u9998")
+                            .replace(/>>/g, "\u9999")
+                            .replace(/</g, "&lt;")
+                            .replace(/>/g, "&gt;")
+                            .replace(/\u9998/g, "<")
+                            .replace(/\u9999/g, ">")
+                            .replace(/!(\/)B!/g, "<$1b")
+                            .replace(/{B}/g, ">")
                             .replace(/\n/g, "<br/>")
                             .replace(/\t/g, "&emsp;"),
                     }}

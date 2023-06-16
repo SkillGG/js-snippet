@@ -18,6 +18,12 @@
             "name": "source",
             "link": "./snippets/source.snippet.json",
             "category": "LNReader"
+        },
+        {
+            "repoID": "master",
+            "name": "multisource",
+            "link": "./snippets/multisource.snippet.json",
+            "category": "LNReader"
         }
     ]
 }
