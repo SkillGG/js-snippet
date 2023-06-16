@@ -44,9 +44,7 @@ const CustomJSSnippets: FC<CustomJSSnippetsProps> = ({ setJS }) => {
     const [firstLoad, setFirstLoad] = useState(false);
     const [placeholderAddSnippetName, setPlaceholderAddSnippetName] =
         useState("");
-    const [loadError, setLoadError] = useState<string | null>(
-        localStorage.getItem(LS_SNIPPET_ERRORDATA)
-    );
+    const [loadError, setLoadError] = useState<string | null>(null);
     const [erroneous, setErroneous] = useState<false | PlaceHolderError[]>(
         false
     );
