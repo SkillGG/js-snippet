@@ -15,6 +15,11 @@
     "overrideMode": "duplicate",
     "imports": [
         {
+            "linkType": "none",
+            "link": "./snippets/LNReader.snippet.json",
+            "overrideMode": "overwrite"
+        },
+        {
             "linkType": "both",
             "link": "./snippets/source_head.snippet.json",
             "overrideMode": "duplicate"

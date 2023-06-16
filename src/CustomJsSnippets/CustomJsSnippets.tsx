@@ -219,7 +219,6 @@ const CustomJSSnippets: FC<CustomJSSnippetsProps> = ({ setJS }) => {
         };
 
         if (snippets.length !== Object.keys(snippetLinks).length) {
-            console.log(localStorage.getItem(LS_SNIPPET_DATA));
             window.LSDATA = localStorage.getItem(LS_SNIPPET_DATA);
             setLoadError(
                 `Something went wrong with parsing your saved data!
@@ -399,7 +398,7 @@ const CustomJSSnippets: FC<CustomJSSnippetsProps> = ({ setJS }) => {
 
     const moveSnippetUp = (snippetname: string, count: number) => {
         const snip = snippets.find((s) => s.name === snippetname);
-        if (!snip) return;
+        if (!snip) return false;
         const lowestDep = [
             ...snippetLinks[snippetname]
                 .filter((l) => l.linkType === "dependson")
@@ -409,30 +408,22 @@ const CustomJSSnippets: FC<CustomJSSnippetsProps> = ({ setJS }) => {
                         name: q.name,
                     };
                 }),
-            ...Object.keys(snippetLinks)
-                .filter((f) => f !== snippetname)
-                .filter((x) =>
-                    snippetLinks[x].find(
-                        (q) => q.linkType === "both" && q.name === snippetname
-                    )
-                )
-                .map((q) => ({
-                    i: snippets.findIndex(({ name }) => name === q),
-                })),
         ].reduce((p, { i }) => (p > i ? p : i), -1);
         const snippetindex = snippets.findIndex(
             ({ name }) => name === snippetname
         );
-        if (snippetindex - count > lowestDep) {
-            console.log("can move up");
+        const withBoth = snippetLinks[snippetname]
+            .filter((q) => q.linkType === "both")
+            .map((q) => snippets.findIndex(({ name }) => name === q.name))
+            .reduce((p, n) => (n > p ? n : p), -1);
+        if (snippetindex - count > lowestDep && snippetindex - count > withBoth)
             //move up
             moveSnippet(snippetindex, -count);
-        } else console.log("cannot move up");
     };
 
     const moveSnippetDown = (snippetname: string, count: number) => {
         const snip = snippets.find((s) => s.name === snippetname);
-        if (!snip) return;
+        if (!snip) return false;
 
         const highestDep = [
             ...Object.keys(snippetLinks)
@@ -444,18 +435,24 @@ const CustomJSSnippets: FC<CustomJSSnippetsProps> = ({ setJS }) => {
                     )
                 )
                 .map((q) => snippets.findIndex(({ name }) => name === q)),
-            ...snippetLinks[snippetname]
-                .filter((l) => l.linkType === "both")
-                .map((q) => snippets.findIndex(({ name }) => name === q.name)),
         ].reduce((p, i) => (i < 0 ? p : p > i ? i : p), MAX_SNIPPET_COUNT);
+        const withBoth = snippets
+            .filter((sn) =>
+                snippetLinks[sn.name].find(
+                    (q) => q.linkType === "both" && q.name === snippetname
+                )
+            )
+            .map((q) => snippets.findIndex((z) => z === q))
+            .reduce((p, n) => (n < p ? n : p), MAX_SNIPPET_COUNT);
         const snippetindex = snippets.findIndex(
             ({ name }) => name === snippetname
         );
-        if (snippetindex + count < highestDep) {
-            console.log("can move down");
+        if (
+            snippetindex + count < highestDep &&
+            snippetindex + count < withBoth
+        )
             //move down
             moveSnippet(snippetindex, count);
-        } else console.log("cannot move down");
     };
 
     return (
