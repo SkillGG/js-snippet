@@ -2,7 +2,7 @@ import { FC, useRef, useState } from "react";
 import { Snippet } from "../../snippet/snippet";
 
 interface NewSnippetDialogProps {
-    addSnippet(s: Snippet, i?: Snippet[]): void;
+    addSnippet(s: Snippet): void;
     snippetNumber: number;
 }
 

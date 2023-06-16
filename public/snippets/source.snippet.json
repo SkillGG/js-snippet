@@ -1,0 +1,23 @@
+{
+    "code": "})(document.querySelector(`body[id=\"sourceId-$$\"] chapter`))}",
+    "name": "source",
+    "placeholders": [
+        {
+            "id": "SourceID",
+            "multiline": false,
+            "needle": "$$",
+            "required": {
+                "patternString": "^\\d+$",
+                "default": "0"
+            }
+        }
+    ],
+    "overrideMode": "duplicate",
+    "imports": [
+        {
+            "linkType": "both",
+            "link": "./snippets/source_head.snippet.json",
+            "overrideMode": "duplicate"
+        }
+    ]
+}

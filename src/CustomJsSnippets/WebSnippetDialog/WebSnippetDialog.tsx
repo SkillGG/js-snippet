@@ -10,7 +10,7 @@ import { z } from "zod";
 import { fetchRepoData, fetchSnippet, isFetchError } from "./utils";
 
 interface WebSnippetDialogProps {
-    addSnippet(s: Snippet, i?: Snippet[]): void;
+    addSnippet(s: Snippet): void;
 }
 
 const URI_REGEX =
@@ -115,33 +115,10 @@ const WebSnippetDialog: FC<WebSnippetDialogProps> = ({ addSnippet }) => {
         );
         if (isFetchError(snippetData)) setWebSnippetError(snippetData.err);
         else {
-            const importedSnips = [];
-            if (snippetData.imports) {
-                for (let i = 0; i < snippetData.imports.length; i++) {
-                    const impSnip = await fetchSnippet(
-                        snippetData.imports[i].link
-                    );
-                    if (isFetchError(impSnip)) {
-                        setWebSnippetError(
-                            "Failed to download import snippets"
-                        );
-                        return;
-                    }
-                    importedSnips.push({
-                        ...impSnip,
-                        overrideMode:
-                            snippetData.imports[i].overrideMode ||
-                            impSnip.overrideMode,
-                    });
-                }
-            }
-            addSnippet(
-                {
-                    ...snippetData,
-                    readonly: true,
-                },
-                importedSnips
-            );
+            addSnippet({
+                ...snippetData,
+                readonly: true,
+            });
             closeSnippetModal();
         }
     };

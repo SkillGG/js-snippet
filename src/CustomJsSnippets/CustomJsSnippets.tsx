@@ -2,6 +2,8 @@ import { FC, useEffect, useState } from "react";
 import {
     Placeholder,
     Snippet,
+    SnippetImports,
+    SnippetImportLinkType,
     SnippetPlaceholderValue,
 } from "../snippet/snippet";
 import NewSnippetDialog from "./NewSnippetDialog/NewSnippetDialog";
@@ -10,17 +12,30 @@ import { z } from "zod";
 
 import "./dialogs.css";
 import NewPlaceholderDialog from "./NewPlaceholderDialog/NewPlaceholderDialog";
+import {
+    FetchError,
+    fetchSnippet,
+    isFetchError,
+} from "./WebSnippetDialog/utils";
 
 interface CustomJSSnippetsProps {
     setJS: React.Dispatch<React.SetStateAction<string>>;
 }
 
+const MAX_SNIPPET_COUNT = Number.MAX_VALUE;
 const DEFAULT_PLACEHOLDER_REGEX = "^[a-zA-Z0-9]+$";
 
 const LS_SNIPPET_DATA = "cutomJSnippets";
 const LS_SNIPPET_ERRORDATA = "cutomJSnippets_error";
 
 type PlaceHolderError = { name: string; error: string };
+type SnippetImportLink = { name: string; linkType: SnippetImportLinkType };
+
+declare global {
+    interface Window {
+        LSDATA: string | null;
+    }
+}
 
 const CustomJSSnippets: FC<CustomJSSnippetsProps> = ({ setJS }) => {
     const [snippets, setSnippets] = useState<Snippet[]>([]);
@@ -35,9 +50,10 @@ const CustomJSSnippets: FC<CustomJSSnippetsProps> = ({ setJS }) => {
     const [erroneous, setErroneous] = useState<false | PlaceHolderError[]>(
         false
     );
+    const [snippetLinks, setSnippetLinks] = useState<SnippetImports>({});
 
     useEffect(() => {
-        const readFromLS = (): [Snippet[], SnippetPlaceholderValue] | null => {
+        const readFromLS = () => {
             setFirstLoad(true);
             const lsData = localStorage.getItem(LS_SNIPPET_DATA);
             if (lsData) {
@@ -49,12 +65,17 @@ const CustomJSSnippets: FC<CustomJSSnippetsProps> = ({ setJS }) => {
                         })
                     );
                     const parsedData = z
-                        .tuple([z.array(LSSnippet), SnippetPlaceholderValue])
+                        .tuple([
+                            z.array(LSSnippet),
+                            SnippetPlaceholderValue,
+                            SnippetImports.optional(),
+                        ])
                         .safeParse(jsonData);
                     if (parsedData.success) {
-                        const [sn, spv] = parsedData.data;
+                        const [sn, spv, lnks] = parsedData.data;
                         setSnippets(() => sn);
                         setPlaceholderValues(() => spv);
+                        setSnippetLinks(() => lnks || {});
                     } else throw parsedData.error;
                 } catch (err) {
                     console.error(err);
@@ -65,12 +86,7 @@ const CustomJSSnippets: FC<CustomJSSnippetsProps> = ({ setJS }) => {
             }
             return null;
         };
-        const lsData = readFromLS();
-        if (lsData) {
-            const [snips, values] = lsData;
-            setSnippets(() => snips);
-            setPlaceholderValues(() => values);
-        }
+        readFromLS();
     }, []);
 
     useEffect(() => {
@@ -154,7 +170,7 @@ const CustomJSSnippets: FC<CustomJSSnippetsProps> = ({ setJS }) => {
     useEffect(() => {
         const saveToLS = () => {
             if (!firstLoad) return;
-            const data = [snippets, placeholderValues];
+            const data = [snippets, placeholderValues, snippetLinks];
             const saveData = JSON.stringify(data);
             localStorage.setItem(LS_SNIPPET_DATA, saveData);
         };
@@ -203,17 +219,77 @@ const CustomJSSnippets: FC<CustomJSSnippetsProps> = ({ setJS }) => {
                 );
             }, "");
         };
+
+        if (snippets.length !== Object.keys(snippetLinks).length) {
+            console.log(localStorage.getItem(LS_SNIPPET_DATA));
+            window.LSDATA = localStorage.getItem(LS_SNIPPET_DATA);
+            setLoadError(
+                `Something went wrong with parsing your saved data!
+                <br/>Unfortunately data could not be restored!<br/>
+                <button onclick="navigator.clipboard.writeText(LSDATA)">Click to copy erroneous data to clipboard to share with devs</button>
+            `
+            );
+            setSnippets([]);
+            setSnippetLinks({});
+            setPlaceholderValues({});
+        }
+
         // generate outJS
         saveToLS();
         setJS(() => reduceSnippets(erroneous || []));
-    }, [snippets, placeholderValues, setJS, erroneous, firstLoad]);
+    }, [
+        snippets,
+        placeholderValues,
+        setJS,
+        erroneous,
+        firstLoad,
+        snippetLinks,
+    ]);
 
-    const addSnippet = (
-        snippetToAdd: Snippet,
-        importSnippets: Snippet[] = []
-    ) => {
-        for (let i = 0; i < importSnippets.length; i++)
-            addSnippet(importSnippets[i]);
+    const resolveSnippetImports = async (
+        snippet: Snippet
+    ): Promise<
+        { snippet: Snippet; linkType: SnippetImportLinkType }[] | FetchError
+    > => {
+        const { imports } = snippet;
+        if (!imports || imports.length <= 0) return [];
+
+        const returns: {
+            snippet: Snippet;
+            linkType: SnippetImportLinkType;
+        }[] = [];
+        for (let i = 0; i < imports.length; i++) {
+            const snip = await fetchSnippet(imports[i].link);
+            if (isFetchError(snip)) return { err: "Could not resolve import!" };
+
+            const snipID = await addSnippet(snip);
+
+            if (!snipID) return { err: "Could not add import!" };
+            snip.name = snipID;
+
+            returns.push({ snippet: snip, linkType: imports[i].linkType });
+        }
+        return returns;
+    };
+
+    const addSnippet = async (
+        snippetToAdd: Snippet
+    ): Promise<string | null> => {
+        // resolve imports
+        const importSnippets = await resolveSnippetImports(snippetToAdd);
+        if (isFetchError(importSnippets)) {
+            alert("Snippet error!");
+            return null;
+        }
+        const importLinks: SnippetImportLink[] = [];
+        for (let i = 0; i < importSnippets.length; i++) {
+            const snippetID = importSnippets[i].snippet.name;
+            if (!snippetID) return null;
+            importLinks.push({
+                name: snippetID,
+                linkType: importSnippets[i].linkType,
+            });
+        }
         if (snippetToAdd.overrideMode === "overwrite") {
             setSnippets((p) => {
                 if (p.find((s) => s.name === snippetToAdd.name))
@@ -223,7 +299,10 @@ const CustomJSSnippets: FC<CustomJSSnippetsProps> = ({ setJS }) => {
                 else return [...p, snippetToAdd];
             });
         } else {
-            const sameSnippets = snippets.filter((snip) =>
+            const sameSnippets = [
+                ...snippets,
+                ...importSnippets.map((s) => s.snippet),
+            ].filter((snip) =>
                 new RegExp(
                     `^${snippetToAdd.name.replace(/-/g, "\\-")}(\\(\\d+\\))?`
                 ).exec(snip.name)
@@ -234,19 +313,49 @@ const CustomJSSnippets: FC<CustomJSSnippetsProps> = ({ setJS }) => {
                 const snipNum = snipRx ? parseInt(snipRx[1], 10) + 1 : 1;
                 snippetToAdd.name = `${snippetToAdd.name}(${snipNum})`;
             }
+
             setSnippets((p) => {
-                return [...p, { ...snippetToAdd }];
+                return [...p, snippetToAdd];
             });
         }
+        setSnippetLinks((prev) => {
+            return { ...prev, [snippetToAdd.name]: importLinks };
+        });
+        return snippetToAdd.name;
     };
 
-    const removeSnippet = (snippetName: string) => {
+    const removeSnippet = (snippetName: string, p = "") => {
+        const snippetNamesToRemove = [
+            ...Object.entries(snippetLinks)
+                .filter((q) => q[0] !== snippetName)
+                .filter((f) =>
+                    f[1].find(
+                        (lnk) =>
+                            lnk.name === snippetName &&
+                            (lnk.linkType === "dependson" ||
+                                lnk.linkType === "both")
+                    )
+                )
+                .map((q) => q[0]), // dependson
+            ...(snippetLinks[snippetName]
+                ?.filter(
+                    (q) => q.linkType === "both" || q.linkType === "isdependent"
+                )
+                ?.map((q) => q.name) || []), //isdependant
+        ];
+        snippetNamesToRemove
+            .filter((n) => p !== n)
+            .forEach((name) => removeSnippet(name, snippetName));
         setSnippets((p) => {
-            return p.filter((snip) => snip.name !== snippetName);
+            return p.filter(({ name }) => name !== snippetName);
         });
-        setPlaceholderValues((pv) => {
-            delete pv[snippetName];
-            return { ...pv };
+        setPlaceholderValues((prevv) => {
+            if (prevv[snippetName]) delete prevv[snippetName];
+            return { ...prevv };
+        });
+        setSnippetLinks((prev) => {
+            if (prev[snippetName]) delete prev[snippetName];
+            return { ...prev };
         });
     };
 
@@ -283,6 +392,74 @@ const CustomJSSnippets: FC<CustomJSSnippetsProps> = ({ setJS }) => {
         });
     };
 
+    const moveSnippet = (index: number, count: number) => {
+        const newSnippets = [...snippets];
+        const ns = newSnippets.splice(index, 1);
+        newSnippets.splice(index + count, 0, ...ns);
+        setSnippets(() => newSnippets);
+    };
+
+    const moveSnippetUp = (snippetname: string, count: number) => {
+        const snip = snippets.find((s) => s.name === snippetname);
+        if (!snip) return;
+        const lowestDep = [
+            ...snippetLinks[snippetname]
+                .filter((l) => l.linkType === "dependson")
+                .map((q) => {
+                    return {
+                        i: snippets.findIndex(({ name }) => name === q.name),
+                        name: q.name,
+                    };
+                }),
+            ...Object.keys(snippetLinks)
+                .filter((f) => f !== snippetname)
+                .filter((x) =>
+                    snippetLinks[x].find(
+                        (q) => q.linkType === "both" && q.name === snippetname
+                    )
+                )
+                .map((q) => ({
+                    i: snippets.findIndex(({ name }) => name === q),
+                })),
+        ].reduce((p, { i }) => (p > i ? p : i), -1);
+        const snippetindex = snippets.findIndex(
+            ({ name }) => name === snippetname
+        );
+        if (snippetindex - count > lowestDep) {
+            console.log("can move up");
+            //move up
+            moveSnippet(snippetindex, -count);
+        } else console.log("cannot move up");
+    };
+
+    const moveSnippetDown = (snippetname: string, count: number) => {
+        const snip = snippets.find((s) => s.name === snippetname);
+        if (!snip) return;
+
+        const highestDep = [
+            ...Object.keys(snippetLinks)
+                .filter((f) => f !== snippetname)
+                .filter((x) =>
+                    snippetLinks[x].find(
+                        (q) =>
+                            q.linkType === "dependson" && q.name === snippetname
+                    )
+                )
+                .map((q) => snippets.findIndex(({ name }) => name === q)),
+            ...snippetLinks[snippetname]
+                .filter((l) => l.linkType === "both")
+                .map((q) => snippets.findIndex(({ name }) => name === q.name)),
+        ].reduce((p, i) => (i < 0 ? p : p > i ? i : p), MAX_SNIPPET_COUNT);
+        const snippetindex = snippets.findIndex(
+            ({ name }) => name === snippetname
+        );
+        if (snippetindex + count < highestDep) {
+            console.log("can move down");
+            //move down
+            moveSnippet(snippetindex, count);
+        } else console.log("cannot move down");
+    };
+
     return (
         <>
             <NewSnippetDialog
@@ -297,7 +474,15 @@ const CustomJSSnippets: FC<CustomJSSnippetsProps> = ({ setJS }) => {
                 }}
             />
             <div>
-                {snippets.map((snippet) => {
+                {loadError && (
+                    <>
+                        <div
+                            className="loadError"
+                            dangerouslySetInnerHTML={{ __html: loadError }}
+                        ></div>
+                    </>
+                )}
+                {snippets.map((snippet, i, a) => {
                     return (
                         <div key={`${snippet.name}`} className="snippet">
                             <div className="snippet_name">
@@ -325,6 +510,24 @@ const CustomJSSnippets: FC<CustomJSSnippetsProps> = ({ setJS }) => {
                                 >
                                     Remove
                                 </button>
+                                {i > 0 && (
+                                    <button
+                                        onClick={() =>
+                                            moveSnippetUp(snippet.name, 1)
+                                        }
+                                    >
+                                        Move up
+                                    </button>
+                                )}
+                                {i < a.length - 1 && (
+                                    <button
+                                        onClick={() =>
+                                            moveSnippetDown(snippet.name, 1)
+                                        }
+                                    >
+                                        Move down
+                                    </button>
+                                )}
                             </div>
                             {!snippet.readonly && (
                                 <>

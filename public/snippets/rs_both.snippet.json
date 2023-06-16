@@ -1,9 +1,9 @@
 {
     "code": "chapter.innerHTML = chapter.innerHTML.replace(/$$/, \"##\");",
-    "name": "replaceSingle",
+    "name": "replaceSingleID",
     "placeholders": [
         {
-            "id": "Replace",
+            "id": "kuuk",
             "needle": "$$",
             "multiline": false,
             "required": {
@@ -12,7 +12,7 @@
             }
         },
         {
-            "id": "With",
+            "id": "uu",
             "needle": "##",
             "multiline": false,
             "required": {
@@ -23,9 +23,9 @@
     "overrideMode": "duplicate",
     "imports": [
         {
-            "overrideMode": "overwrite",
-            "linkType": "dependson",
-            "link": "./snippets/LNReader.snippet.json"
+            "overrideMode": "duplicate",
+            "linkType": "both",
+            "link": "./snippets/replaceSingle.snippet.json"
         }
     ]
 }

@@ -1,7 +1,7 @@
 import { z } from "zod";
 import { SnippetRepo, Snippet, SnippetLink } from "../../snippet/snippet";
 
-type FetchError = { err: string };
+export type FetchError = { err: string };
 
 export const isFetchError = (o: object | FetchError): o is FetchError =>
     (o as FetchError).err ? true : false;

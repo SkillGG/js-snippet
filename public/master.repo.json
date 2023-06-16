@@ -12,6 +12,12 @@
             "name": "lnreader_base",
             "link": "./snippets/LNReader.snippet.json",
             "category": "LNReader"
+        },
+        {
+            "repoID": "master",
+            "name": "source",
+            "link": "./snippets/source.snippet.json",
+            "category": "test"
         }
     ]
 }

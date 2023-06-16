@@ -121,3 +121,10 @@ ul#settings li:last-child {
 a.no-underline {
     text-decoration: none;
 }
+
+.loadError {
+    color: red;
+    font-size: 1.3em;
+    font-weight: bold;
+    text-align: center;
+}

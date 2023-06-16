@@ -56,9 +56,13 @@
                     },
                     "overrideMode": {
                         "enum": ["overwrite", "duplicate"]
+                    },
+                    "linkType": {
+                        "enum": ["both", "none", "dependson", "isdependent"],
+                        "description": "dependson: Dependant is removed if dependency is removed\nisdependant: Dependency is removed if dependant is removed\n\nboth: if one is removed, both are removed\nnone: nothing gets removed if something else gets removed"
                     }
                 },
-                "required": ["link"]
+                "required": ["link", "linkType"]
             }
         }
     },
