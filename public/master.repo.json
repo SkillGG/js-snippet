@@ -17,7 +17,7 @@
             "repoID": "master",
             "name": "source",
             "link": "./snippets/source.snippet.json",
-            "category": "test"
+            "category": "LNReader"
         }
     ]
 }
