@@ -17,13 +17,9 @@ const NewSnippetDialog: FC<NewSnippetDialogProps> = ({
     const [error, setError] = useState<string | null>(null);
 
     const closeModal = () => {
-        if (idRef.current) idRef.current.value = `snippet${snippetNumber}`;
+        if (idRef.current) idRef.current.value = "";
         thisRef.current?.close();
     };
-
-    useEffect(() => {
-        if (idRef.current) idRef.current.value = `snippet${snippetNumber}`;
-    }, [snippetNumber]);
 
     return (
         <>
@@ -40,20 +36,20 @@ const NewSnippetDialog: FC<NewSnippetDialogProps> = ({
                         <div>
                             <label>Snippet ID: </label>
                             <br />
-                            <input ref={idRef} onInput={() => setError(null)} />
+                            <input
+                                ref={idRef}
+                                onInput={() => setError(null)}
+                                placeholder={`snippet${snippetNumber}`}
+                            />
                         </div>
                         <div className="dialogSaveButtons">
                             <button
                                 onClick={() => {
-                                    if (!idRef.current?.value) {
-                                        setError("No ID Provided!");
-                                        return;
-                                    }
-                                    if (
-                                        !/^[a-z0-9_-]+$/i.exec(
-                                            idRef.current.value
-                                        )
-                                    ) {
+                                    if (!idRef.current) return;
+                                    const value =
+                                        idRef.current.value ||
+                                        `snippet${snippetNumber}`;
+                                    if (!/^[a-z0-9_-]+$/i.exec(value)) {
                                         setError(
                                             "Incorrect ID! Use only a-z0-9 and _ or -"
                                         );
@@ -61,7 +57,7 @@ const NewSnippetDialog: FC<NewSnippetDialogProps> = ({
                                     }
                                     addSnippet({
                                         code: "",
-                                        name: idRef.current.value,
+                                        name: value,
                                         placeholders: [],
                                         overrideMode: "duplicate",
                                         readonly: false,
