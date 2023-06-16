@@ -8,6 +8,9 @@ import NewSnippetDialog from "./NewSnippetDialog/NewSnippetDialog";
 import WebSnippetDialog from "./WebSnippetDialog/WebSnippetDialog";
 import { z } from "zod";
 
+import "./dialogs.css";
+import NewPlaceholderDialog from "./NewPlaceholderDialog/NewPlaceholderDialog";
+
 interface CustomJSSnippetsProps {
     setJS: React.Dispatch<React.SetStateAction<string>>;
 }
@@ -24,7 +27,8 @@ const CustomJSSnippets: FC<CustomJSSnippetsProps> = ({ setJS }) => {
     const [placeholderValues, setPlaceholderValues] =
         useState<SnippetPlaceholderValue>({});
     const [firstLoad, setFirstLoad] = useState(false);
-
+    const [placeholderAddSnippetName, setPlaceholderAddSnippetName] =
+        useState("");
     const [loadError, setLoadError] = useState<string | null>(
         localStorage.getItem(LS_SNIPPET_ERRORDATA)
     );
@@ -241,9 +245,41 @@ const CustomJSSnippets: FC<CustomJSSnippetsProps> = ({ setJS }) => {
             return p.filter((snip) => snip.name !== snippetName);
         });
         setPlaceholderValues((pv) => {
-            const x = { ...pv };
-            delete x[snippetName];
-            return x;
+            delete pv[snippetName];
+            return { ...pv };
+        });
+    };
+
+    const addPlaceholder = (snippetname: string, placeholder: Placeholder) => {
+        if (placeholder) {
+            setSnippets((prev) => {
+                return prev.map((snip) => {
+                    return snip.name === snippetname
+                        ? {
+                              ...snip,
+                              placeholders: [...snip.placeholders, placeholder],
+                          }
+                        : snip;
+                });
+            });
+        }
+    };
+
+    const removePlaceholder = (snippetname: string, phid: string) => {
+        setSnippets((prev) => {
+            return prev.map((snip) => {
+                if (snip.name !== snippetname) return snip;
+                return {
+                    ...snip,
+                    placeholders: snip.placeholders.filter((ph) => {
+                        return ph.id !== phid;
+                    }),
+                };
+            });
+        });
+        setPlaceholderValues((prev) => {
+            delete prev[snippetname][phid];
+            return { ...prev };
         });
     };
 
@@ -254,6 +290,12 @@ const CustomJSSnippets: FC<CustomJSSnippetsProps> = ({ setJS }) => {
                 snippetNumber={snippets.length + 1}
             />
             <WebSnippetDialog addSnippet={addSnippet} />
+            <NewPlaceholderDialog
+                addPlaceholder={(p: Placeholder) => {
+                    addPlaceholder(placeholderAddSnippetName, p);
+                    setPlaceholderAddSnippetName("");
+                }}
+            />
             <div>
                 {snippets.map((snippet) => {
                     return (
@@ -422,89 +464,37 @@ const CustomJSSnippets: FC<CustomJSSnippetsProps> = ({ setJS }) => {
                                                                 );
                                                             }}
                                                         />
+                                                        <button
+                                                            onClick={() => {
+                                                                removePlaceholder(
+                                                                    snippet.name,
+                                                                    ph.id
+                                                                );
+                                                            }}
+                                                        >
+                                                            Remove
+                                                        </button>
                                                     </li>
                                                 );
                                             })}
                                             <li
                                                 key={"addplaceholder"}
-                                                onClick={() => {
-                                                    let id: string | null;
-                                                    do {
-                                                        id = prompt(
-                                                            "Placeholder ID?",
-                                                            ""
-                                                        );
-                                                        if (id === null) return;
-                                                    } while (
-                                                        !/^[a-z]+$/.exec(id) &&
-                                                        snippet.placeholders.find(
-                                                            (ph) => ph.id === id
-                                                        )
-                                                    );
-                                                    let needle: string | null;
-                                                    do {
-                                                        needle = prompt(
-                                                            "Characters to change?",
-                                                            ""
-                                                        );
-                                                        if (needle === null)
-                                                            return;
-                                                    } while (
-                                                        snippet.placeholders.find(
-                                                            (ph) =>
-                                                                ph.needle ===
-                                                                needle
-                                                        )
-                                                    );
-                                                    const pattern = prompt(
-                                                        "Allowed value pattern?",
-                                                        DEFAULT_PLACEHOLDER_REGEX
-                                                    );
-                                                    const multiline = !!prompt(
-                                                        "Is Multiline?",
-                                                        ""
-                                                    );
-                                                    const defaultValue = prompt(
-                                                        "Default value?",
-                                                        ""
-                                                    );
-
-                                                    if (needle && id) {
-                                                        const newPlaceholder: Placeholder =
-                                                            {
-                                                                id,
-                                                                needle,
-                                                                multiline,
-                                                                required: {
-                                                                    patternString:
-                                                                        pattern ||
-                                                                        DEFAULT_PLACEHOLDER_REGEX,
-                                                                    default:
-                                                                        defaultValue ||
-                                                                        undefined,
-                                                                },
-                                                            };
-                                                        setSnippets((prev) => {
-                                                            return prev.map(
-                                                                (snip) => {
-                                                                    return snip.name ===
-                                                                        snippet.name
-                                                                        ? {
-                                                                              ...snippet,
-                                                                              placeholders:
-                                                                                  [
-                                                                                      ...snippet.placeholders,
-                                                                                      newPlaceholder,
-                                                                                  ],
-                                                                          }
-                                                                        : snip;
-                                                                }
-                                                            );
-                                                        });
-                                                    }
-                                                }}
+                                                id="addplaceholder"
                                             >
-                                                Add placeholder
+                                                <button
+                                                    onClick={() => {
+                                                        setPlaceholderAddSnippetName(
+                                                            () => snippet.name
+                                                        );
+                                                        document
+                                                            .querySelector<HTMLDialogElement>(
+                                                                "dialog#newPlaceholderDialog"
+                                                            )
+                                                            ?.showModal();
+                                                    }}
+                                                >
+                                                    Add placeholder
+                                                </button>
                                             </li>
                                         </ul>
                                         <button
@@ -647,30 +637,30 @@ const CustomJSSnippets: FC<CustomJSSnippetsProps> = ({ setJS }) => {
                         (snippets.length === 0 ? " addSnippetFlex" : "")
                     }
                 >
-                    <div
+                    <button
                         className="addSnippet"
                         onClick={() => {
-                            const dialog: HTMLDialogElement | null =
-                                document.querySelector(
+                            document
+                                .querySelector<HTMLDialogElement>(
                                     "dialog#newSnippetDialog"
-                                );
-                            if (dialog) dialog.showModal();
+                                )
+                                ?.showModal();
                         }}
                     >
                         Add snippet
-                    </div>
-                    <div
+                    </button>
+                    <button
                         className="addSnippet"
                         onClick={() => {
-                            const dialog: HTMLDialogElement | null =
-                                document.querySelector(
+                            document
+                                .querySelector<HTMLDialogElement>(
                                     "dialog#webSnippetDialog"
-                                );
-                            if (dialog) dialog.showModal();
+                                )
+                                ?.showModal();
                         }}
                     >
                         Load from web
-                    </div>
+                    </button>
                 </div>
             </div>
         </>

@@ -9,6 +9,10 @@
             "items": {
                 "type": "object",
                 "properties": {
+                    "category": {
+                        "type": "string",
+                        "pattern": "^[a-zA-Z]+$"
+                    },
                     "repoID": {
                         "type": "string",
                         "pattern": "^[a-z0-9_]+$"
@@ -21,7 +25,7 @@
                         "type": "string"
                     }
                 },
-                "required": ["repoID", "name", "link"]
+                "required": ["repoID", "name", "link", "category"]
             }
         }
     },

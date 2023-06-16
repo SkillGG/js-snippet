@@ -4,12 +4,14 @@
         {
             "repoID": "master",
             "name": "replaceSingle",
-            "link": "./snippets/replaceSingle.snippet.json"
+            "link": "./snippets/replaceSingle.snippet.json",
+            "category": "LNReader"
         },
         {
             "repoID": "master",
             "name": "lnreader_base",
-            "link": "./snippets/LNReader.snippet.json"
+            "link": "./snippets/LNReader.snippet.json",
+            "category": "LNReader"
         }
     ]
 }

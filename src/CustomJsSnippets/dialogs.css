@@ -1,0 +1,73 @@
+dialog {
+    padding: 0;
+    background-color: transparent;
+    border: none;
+    overflow: visible;
+}
+
+dialog .dialogContent {
+    background-color: white;
+    padding: 10px;
+    border-radius: 5px;
+    border: 3px solid black;
+    box-shadow: 10px 15px 15px 5px black;
+    display: block;
+}
+
+#newSnippetForm {
+    padding: 10px;
+    display: block;
+}
+.dialogSaveButtons {
+    width: fit-content;
+    height: fit-content;
+    margin-inline: auto;
+    margin-top: 10px;
+}
+dialog input[type="text"] {
+    width: 100%;
+}
+
+.webSnippetList {
+    list-style: none;
+    padding: 0;
+    margin: 5px;
+}
+
+[data-required="true"]::after {
+    content: "*";
+    color: red;
+}
+
+.dialogInputContainer {
+    margin-top: 5px;
+}
+
+.dialogInputContainer:first-child {
+    margin: 0;
+}
+
+.repoStatus .repoIsOnline[data-status="up"] {
+    color: green;
+}
+
+.repoStatus .repoIsOnline[data-status="down"] {
+    color: red;
+}
+
+.webSnippetList,
+.webSnippetCategory {
+    list-style: none;
+    padding: 0;
+}
+
+.webSnippetCategory li {
+    display: grid;
+    grid-auto-flow: column;
+    column-gap: 10px;
+    margin-top: 5px;
+}
+
+.webSnippetCategory button {
+    align-self: right;
+}

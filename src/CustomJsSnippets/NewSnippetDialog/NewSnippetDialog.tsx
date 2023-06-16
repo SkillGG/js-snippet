@@ -1,12 +1,10 @@
-import { FC, useEffect, useRef, useState } from "react";
+import { FC, useRef, useState } from "react";
 import { Snippet } from "../../snippet/snippet";
 
 interface NewSnippetDialogProps {
     addSnippet(s: Snippet, i?: Snippet[]): void;
     snippetNumber: number;
 }
-
-import "./newSnippet.css";
 
 const NewSnippetDialog: FC<NewSnippetDialogProps> = ({
     addSnippet,
@@ -18,6 +16,7 @@ const NewSnippetDialog: FC<NewSnippetDialogProps> = ({
 
     const closeModal = () => {
         if (idRef.current) idRef.current.value = "";
+        setError(null);
         thisRef.current?.close();
     };
 
@@ -33,10 +32,12 @@ const NewSnippetDialog: FC<NewSnippetDialogProps> = ({
             >
                 <div id="newSnippetContent" className="dialogContent">
                     <div id="newSnippetForm">
-                        <div>
-                            <label>Snippet ID: </label>
+                        <div className="dialogInputContainer">
+                            <label data-required="true">Snippet ID</label>
                             <br />
                             <input
+                                type="text"
+                                className="snippetIDInput"
                                 ref={idRef}
                                 onInput={() => setError(null)}
                                 placeholder={`snippet${snippetNumber}`}
@@ -51,7 +52,7 @@ const NewSnippetDialog: FC<NewSnippetDialogProps> = ({
                                         `snippet${snippetNumber}`;
                                     if (!/^[a-z0-9_-]+$/i.exec(value)) {
                                         setError(
-                                            "Incorrect ID! Use only a-z0-9 and _ or -"
+                                            "Incorrect ID! Allowed: [a-zA-Z0-9_-]+"
                                         );
                                         return;
                                     }

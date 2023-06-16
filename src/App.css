@@ -70,15 +70,21 @@ ul#settings li:last-child {
 .addSnippet {
     border: 1px solid white;
     width: fit-content;
+    color: white;
     display: inline-block;
+    background-color: #3b3b3b;
     margin-right: 5px;
+    cursor: pointer;
     padding: 8px;
+}
+
+.addSnippet:hover {
+    background-color: rgb(53, 0, 128);
 }
 
 .addSnippetBlock {
     margin-inline: auto;
     width: fit-content;
-    cursor: pointer;
     margin-block: 10px;
 }
 .addSnippetFlex {
@@ -101,6 +107,7 @@ ul#settings li:last-child {
 .dialogerror {
     color: red;
     text-align: center;
+    padding: 5px;
 }
 
 .w3overrideLightBlue {
@@ -109,4 +116,8 @@ ul#settings li:last-child {
 
 .w3overrideRed {
     color: red !important;
+}
+
+a.no-underline {
+    text-decoration: none;
 }

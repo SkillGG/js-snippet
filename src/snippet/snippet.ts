@@ -16,6 +16,7 @@ export const SnippetLink = z.object({
     repoID: z.string(),
     name: z.string(),
     link: z.string(),
+    category: z.string()
 });
 
 export const Snippet = z.object({
@@ -53,8 +54,12 @@ export type SnippetRepo = z.infer<typeof SnippetRepo>;
 
 export type SnippetAddMode = z.infer<typeof SnippetAddMode>;
 
-export type Placeholder = z.infer<typeof Placeholder> & {
-    required: { pattern?: RegExp };
-};
+export type Placeholder = z.infer<typeof Placeholder>;
 
 export type Snippet = z.infer<typeof Snippet>;
+
+export type RepoStatus = {
+    status: "up" | "down";
+    snippetCount: number;
+    errorMessage: string;
+};

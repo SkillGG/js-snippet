@@ -17,12 +17,15 @@ export const fetchRepoData = async (
     const responseSchema = z.union([repoSchema, z.object({ err: z.string() })]);
     const response = await fetch(url, { signal: abort.signal })
         .then((r) => {
-            if (!r.ok) throw new Error("Unable to fetch!");
+            if (!r.ok)
+                throw new Error(
+                    "Unable to fetch! Returned with status: " + r.status
+                );
             return r.json();
         })
         .catch((r) => {
             console.error(r);
-            return { err: "Fetching error" + (r as Error).message };
+            return { err: `Fetching error: ` + (r as Error).message };
         });
     const responseData = responseSchema.safeParse(response);
     if (!responseData.success) {
