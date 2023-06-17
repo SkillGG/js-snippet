@@ -39,6 +39,8 @@ function App() {
                 <IconButton
                     title="Copy the code"
                     icon="copy"
+                    style={{ width: "40px", height: "25px" }}
+                    containerStyle={{ marginRight: "50px" }}
                     iconProps={{
                         svg: {},
                         paths: [

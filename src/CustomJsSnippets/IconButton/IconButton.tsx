@@ -18,6 +18,7 @@ interface IconButtonProps {
     style?: CSSProperties;
     id?: string;
     containerId?: string;
+    containerStyle?: CSSProperties;
     title?: string;
 }
 
@@ -40,10 +41,12 @@ const IconButton: FC<IconButtonProps> = ({
     style,
     containerId,
     containerClasses,
+    containerStyle,
 }) => {
     return (
         <>
             <span
+                style={containerStyle}
                 className={[
                     "iconButtonContainer",
                     ...(containerClasses || []),
