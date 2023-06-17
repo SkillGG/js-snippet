@@ -293,6 +293,7 @@ const WebSnippetDialog: FC<WebSnippetDialogProps> = ({ addSnippet }) => {
             >
                 <div className="dialogContent">
                     <button
+                        className="repoListButton"
                         onClick={() => {
                             document
                                 .querySelector<HTMLDialogElement>(
