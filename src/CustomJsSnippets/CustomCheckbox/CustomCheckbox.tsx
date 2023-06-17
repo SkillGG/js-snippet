@@ -8,8 +8,14 @@ import { IconProps } from "../icons/icon";
 interface CustomCheckboxProps {
     checked: boolean;
     label?: string;
+    title?: string;
     icon?: keyof typeof ICONS;
+    className?: string;
+    containerClass?: string;
     style?: CSSProperties;
+    containerStyle?: CSSProperties;
+    id?: string;
+    containerId?: string;
     iconProps?: IconProps;
     onChange: ChangeEventHandler<HTMLInputElement> | undefined;
     reversedColors?: boolean;
@@ -23,19 +29,30 @@ const ICONS = {
 
 const CustomCheckbox: FC<CustomCheckboxProps> = ({
     label,
+    className,
+    containerClass,
+    id,
+    containerId,
+    title,
     icon,
     iconProps,
     style,
     checked,
     onChange,
+    containerStyle,
     reversedColors = false,
 }) => {
     return (
         <>
-            <label className="checkboxContainer">
+            <label
+                id={containerId}
+                style={containerStyle}
+                className={`checkboxContainer ${containerClass || ""}`}
+            >
                 {label}
                 <input
                     type="checkbox"
+                    className={className}
                     checked={reversedColors ? !checked : checked}
                     onChange={
                         reversedColors
@@ -47,7 +64,12 @@ const CustomCheckbox: FC<CustomCheckboxProps> = ({
                             : onChange
                     }
                 />
-                <span className="checkmark" style={style} aria-tabIndex={1}>
+                <span
+                    id={id}
+                    title={title}
+                    className={`checkmark ${className || ""}`}
+                    style={style}
+                >
                     {ICONS[icon || "none"](iconProps || { svg: {}, paths: [] })}
                 </span>
             </label>

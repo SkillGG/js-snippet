@@ -510,9 +510,15 @@ const CustomJSSnippets: FC<CustomJSSnippetsProps> = ({ setJS }) => {
                             <div className="snippet_name">
                                 {snippet.name}
                                 <CustomCheckbox
+                                    title="Toggle Edit Mode"
                                     icon={"edit"}
                                     checked={snippet.readonly}
                                     onChange={() => {
+                                        document
+                                            .querySelector<HTMLButtonElement>(
+                                                "#copyCode"
+                                            )
+                                            ?.focus();
                                         setSnippets((p) => {
                                             return p.map((snip) => {
                                                 return snip.name ===
@@ -528,12 +534,14 @@ const CustomJSSnippets: FC<CustomJSSnippetsProps> = ({ setJS }) => {
                                     }}
                                 />
                                 <IconButton
+                                    title="Remove snippet"
                                     icon="trash"
                                     style={{ backgroundColor: "#f36921" }}
                                     onClick={() => removeSnippet(snippet.name)}
                                 />
                                 {i > 0 && (
                                     <IconButton
+                                        title="Move snippet up"
                                         icon="up"
                                         onClick={() =>
                                             moveSnippetUp(snippet.name, 1)
@@ -542,6 +550,7 @@ const CustomJSSnippets: FC<CustomJSSnippetsProps> = ({ setJS }) => {
                                 )}
                                 {i < a.length - 1 && (
                                     <IconButton
+                                        title="Move snippet down"
                                         icon="down"
                                         onClick={() =>
                                             moveSnippetDown(snippet.name, 1)
@@ -744,16 +753,20 @@ const CustomJSSnippets: FC<CustomJSSnippetsProps> = ({ setJS }) => {
                                                                 );
                                                             }}
                                                         />
-                                                        <button
+                                                        <IconButton
+                                                            icon="trash"
+                                                            style={{
+                                                                backgroundColor:
+                                                                    "#f36921",
+                                                            }}
+                                                            title="Remove placeholder"
                                                             onClick={() => {
                                                                 removePlaceholder(
                                                                     snippet.name,
                                                                     ph.id
                                                                 );
                                                             }}
-                                                        >
-                                                            Remove
-                                                        </button>
+                                                        />
                                                     </li>
                                                 );
                                             })}

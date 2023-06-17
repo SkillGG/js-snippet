@@ -8,6 +8,7 @@ import {
 import { z } from "zod";
 
 import { fetchRepoData, fetchSnippet, isFetchError } from "./utils";
+import IconButton from "../IconButton/IconButton";
 
 interface WebSnippetDialogProps {
     addSnippet(s: Snippet): void;
@@ -184,7 +185,7 @@ const WebSnippetDialog: FC<WebSnippetDialogProps> = ({ addSnippet }) => {
         <>
             <dialog
                 ref={reposRef}
-                onClick={(ev) => {
+                onMouseDown={(ev) => {
                     if ((ev.target as HTMLElement).tagName === "DIALOG")
                         closeReposModal();
                 }}
@@ -316,15 +317,17 @@ const WebSnippetDialog: FC<WebSnippetDialogProps> = ({ addSnippet }) => {
             </dialog>
             <dialog
                 ref={snippetRef}
-                onClick={(ev) => {
+                onMouseDown={(ev) => {
                     if ((ev.target as HTMLElement).tagName === "DIALOG")
                         closeSnippetModal();
                 }}
                 id="webSnippetDialog"
             >
                 <div className="dialogContent">
-                    <button
-                        className="repoListButton"
+                    <IconButton
+                        icon="settings"
+                        title="Repo list"
+                        containerClasses={["repoListButton"]}
                         onClick={() => {
                             document
                                 .querySelector<HTMLDialogElement>(
@@ -332,9 +335,7 @@ const WebSnippetDialog: FC<WebSnippetDialogProps> = ({ addSnippet }) => {
                                 )
                                 ?.showModal();
                         }}
-                    >
-                        Repo list
-                    </button>
+                    />
                     <ul className="webSnippetList">
                         {webSnippetCategories.map((cat) => {
                             return (

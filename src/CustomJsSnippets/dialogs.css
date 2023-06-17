@@ -70,8 +70,7 @@ dialog input[type="text"] {
 }
 
 .repoListButton {
-    margin-inline: auto 0;
-    display: block;
+    right: -80%;
 }
 
 .webSnippetCategoryName {
@@ -97,4 +96,10 @@ dialog input[type="text"] {
 }
 .webSnippetCategoryName[data-opened="false"] + ul li {
     display: none;
+}
+.checkboxContainer input:checked ~ span.phMultiline {
+    opacity: 100%;
+}
+.checkboxContainer input:not(:checked) ~ span.phMultiline {
+    box-shadow: 1px 1px inset black;
 }

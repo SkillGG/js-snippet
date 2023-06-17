@@ -7,15 +7,18 @@ import { down } from "../icons/down";
 
 import "./iconButton.css";
 import { copy } from "../icons/copy";
+import { settings } from "../icons/settings";
 
 interface IconButtonProps {
     icon: keyof typeof ICONS;
     iconProps?: IconProps;
     onClick?: MouseEventHandler<HTMLButtonElement>;
     classes?: string[];
+    containerClasses?: string[];
     style?: CSSProperties;
     id?: string;
     containerId?: string;
+    title?: string;
 }
 
 const ICONS = {
@@ -24,21 +27,31 @@ const ICONS = {
     up: up,
     down: down,
     copy: copy,
+    settings: settings,
 };
 
 const IconButton: FC<IconButtonProps> = ({
     icon,
+    title,
     onClick,
     iconProps,
     id,
     classes,
     style,
     containerId,
+    containerClasses,
 }) => {
     return (
         <>
-            <span className="iconButtonContainer" id={containerId}>
+            <span
+                className={[
+                    "iconButtonContainer",
+                    ...(containerClasses || []),
+                ].join(" ")}
+                id={containerId}
+            >
                 <button
+                    title={title}
                     style={style}
                     className={["iconButton", ...(classes || [])].join(" ")}
                     id={id}

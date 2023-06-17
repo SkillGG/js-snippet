@@ -36,6 +36,7 @@ function App() {
                     }}
                 ></div>
                 <IconButton
+                    title="Copy the code"
                     icon="copy"
                     iconProps={{
                         svg: {},

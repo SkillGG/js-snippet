@@ -25,7 +25,7 @@ const NewSnippetDialog: FC<NewSnippetDialogProps> = ({
             <dialog
                 ref={thisRef}
                 id="newSnippetDialog"
-                onClick={(e) => {
+                onMouseDown={(e) => {
                     if ((e.target as HTMLElement).tagName === "DIALOG")
                         closeModal();
                 }}

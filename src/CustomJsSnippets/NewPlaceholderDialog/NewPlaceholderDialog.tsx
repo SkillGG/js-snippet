@@ -1,5 +1,6 @@
 import { FC, useRef, useState } from "react";
 import { Placeholder } from "../../snippet/snippet";
+import CustomCheckbox from "../CustomCheckbox/CustomCheckbox";
 
 interface NewPlaceholderDialogProps {
     addPlaceholder(p: Placeholder): void;
@@ -28,7 +29,7 @@ const NewPlaceholderDialog: FC<NewPlaceholderDialogProps> = ({
             <dialog
                 ref={thisRef}
                 id="newPlaceholderDialog"
-                onClick={(e) => {
+                onMouseDown={(e) => {
                     if ((e.target as HTMLElement).tagName === "DIALOG")
                         closeModal();
                 }}
@@ -60,7 +61,7 @@ const NewPlaceholderDialog: FC<NewPlaceholderDialogProps> = ({
                             />
                         </div>
                         <div className="phData dialogInputContainer">
-                            <label>Pattern ()</label>
+                            <label>Pattern</label>
                             <br />
                             <input
                                 type="text"
@@ -71,30 +72,70 @@ const NewPlaceholderDialog: FC<NewPlaceholderDialogProps> = ({
                         </div>
                         <div className="phData dialogInputContainer">
                             <label>Default</label>
-                            <input
-                                type="checkbox"
+                            <CustomCheckbox
+                                icon="edit"
+                                reversedColors={true}
+                                style={{
+                                    width: "18px",
+                                    height: "18px",
+                                    padding: 0,
+                                }}
                                 className="phDefault"
                                 checked={isDefault}
-                                onChange={() => setIsDefault((p) => !p)}
+                                onChange={() => {
+                                    setIsDefault((p) => !p);
+                                    setTimeout(
+                                        () =>
+                                            (
+                                                defaultRef.current ||
+                                                document.querySelector<HTMLButtonElement>(
+                                                    "#addPlaceholder"
+                                                )
+                                            )?.focus(),
+                                        100
+                                    );
+                                }}
                             />
                             {isDefault && (
                                 <>
                                     <br />
-                                    <input ref={defaultRef} type="text" />
+                                    <input
+                                        style={{ marginTop: "2px" }}
+                                        ref={defaultRef}
+                                        type="text"
+                                    />
                                 </>
                             )}
                         </div>
                         <div className="phData dialogInputContainer">
                             <label>Multiline</label>
-                            <input
-                                type="checkbox"
+                            <CustomCheckbox
+                                icon="mark"
                                 className="phMultiline"
+                                reversedColors={true}
                                 checked={isMultiline}
-                                onChange={() => setIsMultiline((p) => !p)}
+                                style={{
+                                    width: "18px",
+                                    height: "18px",
+                                    padding: 0,
+                                }}
+                                iconProps={{
+                                    svg: {},
+                                    paths: [{ strokeWidth: "50px" }],
+                                }}
+                                onChange={() => {
+                                    document
+                                        .querySelector<HTMLButtonElement>(
+                                            "#addPlaceholder"
+                                        )
+                                        ?.focus();
+                                    setIsMultiline((p) => !p);
+                                }}
                             />
                         </div>
                         <div className="dialogSaveButtons">
                             <button
+                                id="addPlaceholder"
                                 onClick={() => {
                                     try {
                                         if (
