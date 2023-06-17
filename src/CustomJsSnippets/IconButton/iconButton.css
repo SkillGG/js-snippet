@@ -1,0 +1,25 @@
+.iconButtonContainer {
+    display: inline-block;
+    position: relative;
+    cursor: pointer;
+    margin-right: calc(var(--button-size) + var(--button-gap));
+    user-select: none;
+}
+
+.iconButton {
+    position: absolute;
+    cursor: pointer;
+    top: -15px;
+    left: var(--button-gap);
+    height: var(--button-size);
+    padding: 3px;
+    width: var(--button-size);
+    opacity: 100%;
+    border: none;
+    border-radius: 3px;
+}
+
+.iconButton svg {
+    width: 100%;
+    height: 100%;
+}

@@ -15,6 +15,8 @@ body {
     grid-auto-flow: column;
     grid-auto-columns: 1fr 1fr;
     width: 100vw;
+    --button-gap: 5px;
+    --button-size: 20px;
 }
 
 .jscolor {
@@ -59,7 +61,8 @@ input {
 
 .snippet_name {
     font-weight: bolder;
-    font-size: 2em;
+    font-size: 1.5em;
+    text-decoration: underline;
 }
 
 ul#settings li:last-child {
@@ -94,10 +97,6 @@ ul#settings li:last-child {
     margin-block: 0;
 }
 
-#copyCode {
-    float: right;
-}
-
 .w3-code {
     border: 1px solid black;
     padding: 5px;
@@ -127,4 +126,14 @@ a.no-underline {
     font-size: 1.3em;
     font-weight: bold;
     text-align: center;
+}
+
+#copyCodeContainer {
+    display: block;
+    float: right;
+}
+
+#copyCode {
+    top: 0;
+    padding: 1px;
 }

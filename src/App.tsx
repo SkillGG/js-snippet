@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import CustomJSSnippets from "./CustomJsSnippets/CustomJsSnippets";
 import Footer from "./Footer";
 import "./App.css";
+import IconButton from "./CustomJsSnippets/IconButton/IconButton";
 
 function App() {
     const [outJS, setOutJS] = useState("");
@@ -34,15 +35,25 @@ function App() {
                             .replace(/\t/g, "&emsp;"),
                     }}
                 ></div>
-                <button
+                <IconButton
+                    icon="copy"
+                    iconProps={{
+                        svg: {},
+                        paths: [
+                            {
+                                fill: "none",
+                                stroke: "black",
+                                strokeWidth: "35px",
+                            },
+                        ],
+                    }}
                     id="copyCode"
+                    containerId="copyCodeContainer"
                     onClick={() => {
                         navigator.clipboard.writeText(outJS);
                         setCopied("Copied to clipboard!");
                     }}
-                >
-                    Copy code
-                </button>
+                />
                 <span>{copied}</span>
             </div>
             <Footer />

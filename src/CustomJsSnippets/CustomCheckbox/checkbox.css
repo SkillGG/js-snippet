@@ -1,0 +1,56 @@
+.checkboxContainer {
+    display: inline-block;
+    position: relative;
+    cursor: pointer;
+    margin-right: calc(var(--button-size) + var(--button-gap));
+    user-select: none;
+}
+
+.checkboxContainer input {
+    position: absolute;
+    opacity: 0;
+    cursor: pointer;
+    height: 0;
+    width: 0;
+}
+
+.checkmark {
+    position: absolute;
+    top: -15px;
+    left: var(--button-gap);
+    height: var(--button-size);
+    width: var(--button-size);
+    opacity: 100%;
+    background-color: #2196f3;
+    border-radius: 3px;
+}
+
+.checkboxContainer:hover input ~ .checkmark:hover {
+    background-color: #fff;
+    opacity: 100%;
+}
+
+.checkboxContainer input:checked ~ .checkmark {
+    background-color: #eee;
+    opacity: 20%;
+}
+
+.checkboxContainer input:focus ~ .checkmark {
+    background-color: #fff;
+    opacity: 100%;
+}
+
+.checkboxContainer input ~ .checkmark svg {
+    width: 85%;
+    height: 80%;
+    top: 10%;
+    left: 10%;
+    position: absolute;
+}
+
+.iconPath {
+    stroke-width: 32px;
+    width: 100%;
+    fill: none;
+    stroke: black;
+}

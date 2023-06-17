@@ -26,6 +26,8 @@ const WebSnippetDialog: FC<WebSnippetDialogProps> = ({ addSnippet }) => {
         Record<string, RepoStatus>
     >({});
 
+    const [openedCategories, setOpenedCategories] = useState<string[]>([]);
+
     const snippetRef = useRef<HTMLDialogElement>(null);
     const reposRef = useRef<HTMLDialogElement>(null);
 
@@ -90,12 +92,32 @@ const WebSnippetDialog: FC<WebSnippetDialogProps> = ({ addSnippet }) => {
                         }
                     });
                 const repoData = await Promise.all(promiseArray);
-                setSnippetRepos(() => {
-                    const newRepoData = repoData.reduce<
-                        Required<SnippetRepo>[]
-                    >((p, n) => {
+                const newRepoData = repoData.reduce<Required<SnippetRepo>[]>(
+                    (p, n) => {
                         return n ? [...p, n] : p;
-                    }, []);
+                    },
+                    []
+                );
+                setOpenedCategories((p) =>  
+                    newRepoData
+                        .reduce<SnippetCategory[]>((p, n) => {
+                            const categories: SnippetCategory[] = [...p];
+                            n.snippetLinks?.forEach((sl) => {
+                                const cat = categories.find(
+                                    (c) => c.name === sl.category
+                                );
+                                if (cat) cat.links.push(sl);
+                                else
+                                    categories.push({
+                                        name: sl.category,
+                                        links: [sl],
+                                    });
+                            });
+                            return categories;
+                        }, [])
+                        .map((sc) => sc.name)
+                );
+                setSnippetRepos(() => {
                     return newRepoData;
                 });
             })();
@@ -136,6 +158,7 @@ const WebSnippetDialog: FC<WebSnippetDialogProps> = ({ addSnippet }) => {
         name: string;
         links: SnippetLink[];
     };
+
     const webSnippetCategories = snippetRepos.reduce<SnippetCategory[]>(
         (p, n) => {
             const categories: SnippetCategory[] = [...p];
@@ -148,6 +171,14 @@ const WebSnippetDialog: FC<WebSnippetDialogProps> = ({ addSnippet }) => {
         },
         []
     );
+
+    const toggleOpenedCategory = (cat: string) => {
+        setOpenedCategories((prev) => {
+            return prev.find((c) => c === cat)
+                ? prev.filter((c) => c !== cat)
+                : [...prev, cat];
+        });
+    };
 
     return (
         <>
@@ -308,7 +339,21 @@ const WebSnippetDialog: FC<WebSnippetDialogProps> = ({ addSnippet }) => {
                         {webSnippetCategories.map((cat) => {
                             return (
                                 <li key={cat.name}>
-                                    <b>{cat.name}</b>
+                                    <b
+                                        className="webSnippetCategoryName"
+                                        data-opened={
+                                            openedCategories.find(
+                                                (c) => c === cat.name
+                                            )
+                                                ? "true"
+                                                : "false"
+                                        }
+                                        onClick={() => {
+                                            toggleOpenedCategory(cat.name);
+                                        }}
+                                    >
+                                        {cat.name}
+                                    </b>
                                     <ul className="webSnippetCategory">
                                         {cat.links.map((link) => {
                                             return (

@@ -17,6 +17,8 @@ import {
     fetchSnippet,
     isFetchError,
 } from "./WebSnippetDialog/utils";
+import CustomCheckbox from "./CustomCheckbox/CustomCheckbox";
+import IconButton from "./IconButton/IconButton";
 
 interface CustomJSSnippetsProps {
     setJS: React.Dispatch<React.SetStateAction<string>>;
@@ -49,6 +51,7 @@ const CustomJSSnippets: FC<CustomJSSnippetsProps> = ({ setJS }) => {
         false
     );
     const [snippetLinks, setSnippetLinks] = useState<SnippetImports>({});
+    const [editErrorCode, setEditErrorCode] = useState<string[]>([]);
 
     useEffect(() => {
         const readFromLS = () => {
@@ -152,7 +155,6 @@ const CustomJSSnippets: FC<CustomJSSnippetsProps> = ({ setJS }) => {
                 }
             });
             if (hasError.length) {
-                console.log("settings errors", hasError);
                 setErroneous((prev) => {
                     return prev
                         ? [
@@ -221,7 +223,6 @@ const CustomJSSnippets: FC<CustomJSSnippetsProps> = ({ setJS }) => {
         const reduceSnippets = (errored: PlaceHolderError[]) => {
             return snippets.reduce((prev, snip) => {
                 const err = errored.filter((sn) => snip.name === sn.name);
-                console.log("errors", err);
                 let snipCode: string =
                     err.length > 0
                         ? err.reduce(
@@ -258,9 +259,7 @@ const CustomJSSnippets: FC<CustomJSSnippetsProps> = ({ setJS }) => {
 
         // generate outJS
         saveToLS();
-        console.log("Generating new JS");
         const code = reduceSnippets(erroneous || []);
-        console.log(erroneous);
         setJS(() => code);
     }, [
         snippets,
@@ -509,9 +508,9 @@ const CustomJSSnippets: FC<CustomJSSnippetsProps> = ({ setJS }) => {
                     return (
                         <div key={`${snippet.name}`} className="snippet">
                             <div className="snippet_name">
-                                {snippet.name}{" "}
-                                <input
-                                    type="checkbox"
+                                {snippet.name}
+                                <CustomCheckbox
+                                    icon={"edit"}
                                     checked={snippet.readonly}
                                     onChange={() => {
                                         setSnippets((p) => {
@@ -528,28 +527,26 @@ const CustomJSSnippets: FC<CustomJSSnippetsProps> = ({ setJS }) => {
                                         });
                                     }}
                                 />
-                                <button
+                                <IconButton
+                                    icon="trash"
+                                    style={{ backgroundColor: "#f36921" }}
                                     onClick={() => removeSnippet(snippet.name)}
-                                >
-                                    Remove
-                                </button>
+                                />
                                 {i > 0 && (
-                                    <button
+                                    <IconButton
+                                        icon="up"
                                         onClick={() =>
                                             moveSnippetUp(snippet.name, 1)
                                         }
-                                    >
-                                        Move up
-                                    </button>
+                                    />
                                 )}
                                 {i < a.length - 1 && (
-                                    <button
+                                    <IconButton
+                                        icon="down"
                                         onClick={() =>
                                             moveSnippetDown(snippet.name, 1)
                                         }
-                                    >
-                                        Move down
-                                    </button>
+                                    />
                                 )}
                             </div>
                             {!snippet.readonly && (
@@ -579,32 +576,38 @@ const CustomJSSnippets: FC<CustomJSSnippetsProps> = ({ setJS }) => {
                                         <br />
                                         <div>
                                             Code if errored:
-                                            <input
-                                                type="checkbox"
+                                            <CustomCheckbox
+                                                reversedColors={true}
+                                                icon={"edit"}
                                                 checked={
-                                                    snippet.errorCode !==
-                                                    undefined
+                                                    !!editErrorCode.find(
+                                                        (ec) =>
+                                                            ec === snippet.name
+                                                    )
                                                 }
                                                 onChange={() => {
-                                                    setSnippets((p) => {
-                                                        return p.map((sn) => {
-                                                            return sn.name ===
+                                                    setEditErrorCode((prev) => {
+                                                        return prev.find(
+                                                            (ec) =>
+                                                                ec ===
                                                                 snippet.name
-                                                                ? {
-                                                                      ...sn,
-                                                                      errorCode:
-                                                                          sn.errorCode !==
-                                                                          undefined
-                                                                              ? undefined
-                                                                              : "",
-                                                                  }
-                                                                : sn;
-                                                        });
+                                                        )
+                                                            ? prev.filter(
+                                                                  (ec) =>
+                                                                      ec !==
+                                                                      snippet.name
+                                                              )
+                                                            : [
+                                                                  ...prev,
+                                                                  snippet.name,
+                                                              ];
                                                     });
                                                 }}
                                             />
                                         </div>
-                                        {snippet.errorCode !== undefined && (
+                                        {editErrorCode.find(
+                                            (ec) => ec === snippet.name
+                                        ) && (
                                             <textarea
                                                 rows={5}
                                                 cols={100}

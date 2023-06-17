@@ -73,3 +73,28 @@ dialog input[type="text"] {
     margin-inline: auto 0;
     display: block;
 }
+
+.webSnippetCategoryName {
+    cursor: pointer;
+    text-decoration: underline;
+}
+
+.webSnippetCategoryName::before {
+    margin-right: 2px;
+    line-height: -5px;
+    text-decoration: none;
+    display: inline-block;
+    transform: translateY(0);
+    font-size: 1.3em;
+}
+
+.webSnippetCategoryName[data-opened="false"]::before {
+    content: "‹";
+}
+
+.webSnippetCategoryName[data-opened="true"]::before {
+    content: "›";
+}
+.webSnippetCategoryName[data-opened="false"] + ul li {
+    display: none;
+}
