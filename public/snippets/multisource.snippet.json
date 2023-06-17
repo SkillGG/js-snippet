@@ -1,5 +1,6 @@
 {
     "code": "})(document.querySelector(\"$$\".split(\",\").reduce((p,n,i,a)=>p+`${i>0&&i<a.length?\",\":\"\"}body[id=\"source-${n}\"] chapter`,\"\")))}",
+    "errorCode": "});",
     "name": "multisource",
     "placeholders": [
         {

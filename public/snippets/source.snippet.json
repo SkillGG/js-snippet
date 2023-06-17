@@ -4,25 +4,26 @@
     "placeholders": [
         {
             "id": "SourceID",
-            "multiline": false,
             "needle": "$$",
+            "multiline": false,
             "required": {
-                "patternString": "^\\d+$",
-                "default": "0"
+                "default": "0",
+                "patternString": "^\\d+$"
             }
         }
     ],
     "overrideMode": "duplicate",
     "imports": [
         {
-            "linkType": "none",
+            "overrideMode": "overwrite",
             "link": "./snippets/LNReader.snippet.json",
-            "overrideMode": "overwrite"
+            "linkType": "none"
         },
         {
-            "linkType": "both",
+            "overrideMode": "duplicate",
             "link": "./snippets/source_head.snippet.json",
-            "overrideMode": "duplicate"
+            "linkType": "both"
         }
-    ]
+    ],
+    "errorCode": "});"
 }

@@ -39,6 +39,7 @@ export const SnippetLink = z.object({
 
 export const Snippet = z.object({
     code: z.string(),
+    errorCode: z.string().optional(),
     name: z.string().regex(/^[a-z0-9_-]+$/i),
     readonly: z.boolean(),
     placeholders: z.array(Placeholder),

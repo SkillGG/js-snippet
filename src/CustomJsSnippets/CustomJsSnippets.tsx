@@ -28,7 +28,7 @@ const DEFAULT_PLACEHOLDER_REGEX = "^[a-zA-Z0-9]+$";
 const LS_SNIPPET_DATA = "cutomJSnippets";
 const LS_SNIPPET_ERRORDATA = "cutomJSnippets_error";
 
-type PlaceHolderError = { name: string; error: string };
+type PlaceHolderError = { name: string; error: string; phid: string };
 type SnippetImportLink = { name: string; linkType: SnippetImportLinkType };
 
 declare global {
@@ -132,10 +132,11 @@ const CustomJSSnippets: FC<CustomJSSnippetsProps> = ({ setJS }) => {
                     const rx = new RegExp(
                         ph.required.patternString || DEFAULT_PLACEHOLDER_REGEX
                     );
-                    if (!rx.exec(value)) {
+                    if (!rx.exec(value || ph.required.default || "")) {
                         field.style.borderColor = "red";
                         hasError.push({
                             name: snippet.name,
+                            phid: ph.id,
                             error: `/*
                             \t<<b class="w3overrideRed">>${snippet.name}.${ph.id}<</b>>: wrong pattern!
                             \tCorrect pattern:
@@ -151,12 +152,29 @@ const CustomJSSnippets: FC<CustomJSSnippetsProps> = ({ setJS }) => {
                 }
             });
             if (hasError.length) {
-                const err = {
-                    name: snippet.name,
-                    error: hasError.reduce((p, n) => p + "\n" + n.error, ""),
-                };
+                console.log("settings errors", hasError);
                 setErroneous((prev) => {
-                    return prev ? [...prev, err] : [err];
+                    return prev
+                        ? [
+                              ...prev.map((perr) => {
+                                  return (
+                                      hasError.find(
+                                          (err) =>
+                                              perr.name === err.name &&
+                                              perr.phid === err.phid
+                                      ) || perr
+                                  );
+                              }),
+                              ...hasError.filter(
+                                  (err) =>
+                                      !prev.find(
+                                          (perr) =>
+                                              err.name === perr.name &&
+                                              err.phid === perr.phid
+                                      )
+                              ),
+                          ]
+                        : [...hasError];
                 });
             }
         };
@@ -202,8 +220,15 @@ const CustomJSSnippets: FC<CustomJSSnippetsProps> = ({ setJS }) => {
         });
         const reduceSnippets = (errored: PlaceHolderError[]) => {
             return snippets.reduce((prev, snip) => {
-                const err = errored.find((sn) => snip.name === sn.name);
-                let snipCode: string = err ? err.error : snip.code;
+                const err = errored.filter((sn) => snip.name === sn.name);
+                console.log("errors", err);
+                let snipCode: string =
+                    err.length > 0
+                        ? err.reduce(
+                              (p, n) => p + `\n${n.error}`,
+                              snip.errorCode || ""
+                          )
+                        : snip.code;
                 snip.placeholders.forEach((ph) => {
                     snipCode = snipCode.replace(
                         ph.needle,
@@ -233,7 +258,10 @@ const CustomJSSnippets: FC<CustomJSSnippetsProps> = ({ setJS }) => {
 
         // generate outJS
         saveToLS();
-        setJS(() => reduceSnippets(erroneous || []));
+        console.log("Generating new JS");
+        const code = reduceSnippets(erroneous || []);
+        console.log(erroneous);
+        setJS(() => code);
     }, [
         snippets,
         placeholderValues,
@@ -548,6 +576,57 @@ const CustomJSSnippets: FC<CustomJSSnippetsProps> = ({ setJS }) => {
                                                 });
                                             }}
                                         ></textarea>
+                                        <br />
+                                        <div>
+                                            Code if errored:
+                                            <input
+                                                type="checkbox"
+                                                checked={
+                                                    snippet.errorCode !==
+                                                    undefined
+                                                }
+                                                onChange={() => {
+                                                    setSnippets((p) => {
+                                                        return p.map((sn) => {
+                                                            return sn.name ===
+                                                                snippet.name
+                                                                ? {
+                                                                      ...sn,
+                                                                      errorCode:
+                                                                          sn.errorCode !==
+                                                                          undefined
+                                                                              ? undefined
+                                                                              : "",
+                                                                  }
+                                                                : sn;
+                                                        });
+                                                    });
+                                                }}
+                                            />
+                                        </div>
+                                        {snippet.errorCode !== undefined && (
+                                            <textarea
+                                                rows={5}
+                                                cols={100}
+                                                value={snippet.errorCode}
+                                                onChange={(ev) => {
+                                                    setSnippets((p) => {
+                                                        return p.map((sn) => {
+                                                            return sn.name ===
+                                                                snippet.name
+                                                                ? {
+                                                                      ...sn,
+                                                                      errorCode:
+                                                                          ev
+                                                                              .target
+                                                                              .value,
+                                                                  }
+                                                                : sn;
+                                                        });
+                                                    });
+                                                }}
+                                            ></textarea>
+                                        )}
                                     </h4>
                                     <h4>
                                         Placeholders (settings):

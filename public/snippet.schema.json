@@ -4,13 +4,12 @@
         "code": {
             "type": "string"
         },
+        "errorCode": {
+            "type": "string"
+        },
         "name": {
             "type": "string",
             "pattern": "^[a-zA-Z0-9_-]+$"
-        },
-        "category": {
-            "type": "string",
-            "pattern": "^[a-zA-Z]*$"
         },
         "placeholders": {
             "type": "array",
