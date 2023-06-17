@@ -59,10 +59,23 @@ input {
     margin: 5px;
 }
 
+@media only screen and (max-width: 370px) {
+    .snippet {
+        padding: 8px;
+        margin: 3px;
+    }
+}
+
 .snippet_name {
     font-weight: bolder;
     font-size: 1.5em;
     text-decoration: underline;
+}
+
+@media only screen and (max-width: 600px) {
+    .snippet_name {
+        font-size: 1em;
+    }
 }
 
 ul#settings li:last-child {
@@ -131,6 +144,7 @@ a.no-underline {
 #copyCodeContainer {
     display: block;
     float: right;
+    min-height: 30px;
 }
 
 #copyCode {

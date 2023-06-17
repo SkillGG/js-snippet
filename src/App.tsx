@@ -20,6 +20,7 @@ function App() {
             <div id="out">
                 <h3>JS Output:</h3>
                 <div
+                    style={{ wordBreak: "break-all" }}
                     className="w3-code jsHigh notranslate"
                     dangerouslySetInnerHTML={{
                         __html: outJS

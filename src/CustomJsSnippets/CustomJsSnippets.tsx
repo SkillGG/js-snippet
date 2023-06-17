@@ -443,9 +443,20 @@ const CustomJSSnippets: FC<CustomJSSnippetsProps> = ({ setJS }) => {
             .filter((q) => q.linkType === "both")
             .map((q) => snippets.findIndex(({ name }) => name === q.name))
             .reduce((p, n) => (n > p ? n : p), -1);
-        if (snippetindex - count > lowestDep && snippetindex - count > withBoth)
+        if (
+            snippetindex - count > lowestDep &&
+            snippetindex - count > withBoth
+        ) {
             //move up
             moveSnippet(snippetindex, -count);
+            setTimeout(() => {
+                const offset = document.querySelector<HTMLDivElement>(
+                    `#${snippetname}`
+                )?.offsetTop;
+                if (offset)
+                    window.scroll({ top: offset - 25, behavior: "instant" });
+            }, 0);
+        }
     };
 
     const moveSnippetDown = (snippetname: string, count: number) => {
@@ -477,9 +488,17 @@ const CustomJSSnippets: FC<CustomJSSnippetsProps> = ({ setJS }) => {
         if (
             snippetindex + count < highestDep &&
             snippetindex + count < withBoth
-        )
+        ) {
             //move down
             moveSnippet(snippetindex, count);
+            setTimeout(() => {
+                const offset = document.querySelector<HTMLDivElement>(
+                    `#${snippetname}`
+                )?.offsetTop;
+                if (offset)
+                    window.scroll({ top: offset - 50, behavior: "smooth" });
+            }, 0);
+        }
     };
 
     return (
@@ -506,7 +525,11 @@ const CustomJSSnippets: FC<CustomJSSnippetsProps> = ({ setJS }) => {
                 )}
                 {snippets.map((snippet, i, a) => {
                     return (
-                        <div key={`${snippet.name}`} className="snippet">
+                        <div
+                            key={`${snippet.name}`}
+                            className="snippet"
+                            id={`${snippet.name}`}
+                        >
                             <div className="snippet_name">
                                 {snippet.name}
                                 <CustomCheckbox
@@ -564,8 +587,8 @@ const CustomJSSnippets: FC<CustomJSSnippetsProps> = ({ setJS }) => {
                                         <div>Code:</div>
                                         <textarea
                                             rows={5}
-                                            cols={100}
                                             value={snippet.code}
+                                            style={{ width: "100%" }}
                                             onChange={(ev) => {
                                                 setSnippets((p) => {
                                                     return p.map((sn) => {
@@ -619,7 +642,7 @@ const CustomJSSnippets: FC<CustomJSSnippetsProps> = ({ setJS }) => {
                                         ) && (
                                             <textarea
                                                 rows={5}
-                                                cols={100}
+                                                style={{ width: "100%" }}
                                                 value={snippet.errorCode}
                                                 onChange={(ev) => {
                                                     setSnippets((p) => {
@@ -651,7 +674,12 @@ const CustomJSSnippets: FC<CustomJSSnippetsProps> = ({ setJS }) => {
                                                     >
                                                         {ph.needle}{" "}
                                                         <input
-                                                            placeholder="default"
+                                                            style={{
+                                                                width: "33%",
+                                                                maxWidth:
+                                                                    "150px",
+                                                            }}
+                                                            placeholder="pattern"
                                                             value={
                                                                 ph.required
                                                                     .patternString
@@ -703,6 +731,11 @@ const CustomJSSnippets: FC<CustomJSSnippetsProps> = ({ setJS }) => {
                                                         />
                                                         <input
                                                             placeholder="default"
+                                                            style={{
+                                                                width: "33%",
+                                                                maxWidth:
+                                                                    "150px",
+                                                            }}
                                                             value={
                                                                 ph.required
                                                                     .default ||
