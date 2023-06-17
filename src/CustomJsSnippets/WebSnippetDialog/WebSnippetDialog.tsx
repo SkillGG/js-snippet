@@ -98,7 +98,7 @@ const WebSnippetDialog: FC<WebSnippetDialogProps> = ({ addSnippet }) => {
                     },
                     []
                 );
-                setOpenedCategories((p) =>  
+                setOpenedCategories(() =>
                     newRepoData
                         .reduce<SnippetCategory[]>((p, n) => {
                             const categories: SnippetCategory[] = [...p];

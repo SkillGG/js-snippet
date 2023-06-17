@@ -1,4 +1,4 @@
-import { CSSProperties, ChangeEventHandler, FC, useState } from "react";
+import { CSSProperties, ChangeEventHandler, FC } from "react";
 import "./checkbox.css";
 import { edit } from "../icons/edit";
 import { mark } from "../icons/mark";
