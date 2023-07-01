@@ -9,6 +9,18 @@
         },
         {
             "repoID": "master",
+            "name": "replaceMultiple",
+            "link": "./snippets/replaceMultiple.snippet.json",
+            "category": "LNReader"
+        },
+        {
+            "repoID": "master",
+            "name": "replaceMultipleToOne",
+            "link": "./snippets/replaceMultipleToOne.snippet.json",
+            "category": "LNReader"
+        },
+        {
+            "repoID": "master",
             "name": "lnreader_base",
             "link": "./snippets/LNReader.snippet.json",
             "category": "LNReader"
@@ -23,12 +35,6 @@
             "repoID": "master",
             "name": "multisource",
             "link": "./snippets/multisource.snippet.json",
-            "category": "LNReader"
-        },
-        {
-            "repoID": "master",
-            "name": "replaceMultiToOne",
-            "link": "./snippets/replaceMultipleToOne.snippet.json",
             "category": "LNReader"
         }
     ]
