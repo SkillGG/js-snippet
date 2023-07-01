@@ -28,7 +28,7 @@
         {
             "repoID": "master",
             "name": "replaceMultiToOne",
-            "link": "./snippets/replaceMultiToOne.snippet.json",
+            "link": "./snippets/replaceMultipleToOne.snippet.json",
             "category": "LNReader"
         }
     ]
