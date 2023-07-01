@@ -1,22 +1,23 @@
 {
-    "code": "for(const needle of `$$`.split(\"|\")){\n    chapter.innerHTML = chapter.innerHTML.replace(new RegExp(needle,\"g\"), \"##\");\n}",
+    "code": "const values = `##`.split(\",\");\nfor(let i = 0; i < `$$`.split(\",\"); i++){\n    const needle = `$$`.split(\",\")[i];\n    chapter.innerHTML = chapter.innerHTML.replace(new RegExp(needle,\"g\"), values[i]);\n}",
     "name": "replaceMultiToOne",
     "placeholders": [
         {
             "id": "Replace",
-            "multiline": false,
             "needle": "$$",
+            "multiline": false,
             "required": {
-                "patternString": "^([^,]+,)*([^,]+)$",
-                "default": "a,b,c,d"
+                "patternString": "^([^\\,]+\\,)*([^\\,]+)$",
+                "default": "a,b,c"
             }
         },
         {
             "id": "To",
-            "multiline": false,
             "needle": "##",
+            "multiline": false,
             "required": {
-                "patternString": "^.*$"
+                "patternString": "^([^\\,]+\\,)*([^\\,]+)$",
+                "default": "d,e,f"
             }
         }
     ],
