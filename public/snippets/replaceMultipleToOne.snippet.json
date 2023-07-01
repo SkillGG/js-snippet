@@ -1,0 +1,30 @@
+{
+    "code": "for(const needle of `$$`.split(\"|\")){\n    chapter.innerHTML = chapter.innerHTML.replace(new RegExp(needle,\"g\"), \"##\");\n}",
+    "name": "replaceMultiToOne",
+    "placeholders": [
+        {
+            "id": "Replace",
+            "multiline": false,
+            "needle": "$$",
+            "required": {
+                "patternString": "^([^\\|]+\\|)*([^\\|]+)$"
+            }
+        },
+        {
+            "id": "To",
+            "multiline": false,
+            "needle": "##",
+            "required": {
+                "patternString": "^.*$"
+            }
+        }
+    ],
+    "overrideMode": "duplicate",
+    "imports": [
+        {
+            "overrideMode": "overwrite",
+            "link": "./snippets/LNReader.snippet.json",
+            "linkType": "none"
+        }
+    ]
+}

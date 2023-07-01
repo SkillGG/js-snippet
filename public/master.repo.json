@@ -24,6 +24,12 @@
             "name": "multisource",
             "link": "./snippets/multisource.snippet.json",
             "category": "LNReader"
+        },
+        {
+            "repoID": "master",
+            "name": "replaceMultiToOne",
+            "link": "./snippets/replaceMultiToOne.snippet.json",
+            "category": "LNReader"
         }
     ]
 }
