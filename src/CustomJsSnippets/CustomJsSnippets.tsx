@@ -850,14 +850,14 @@ const CustomJSSnippets: FC<CustomJSSnippetsProps> = ({ setJS }) => {
                                 Object.keys(placeholderValues[snippet.name])
                                     .length > 0 && (
                                     <h4>
-                                        Placeholders (values):
+                                        Variables:
                                         <ul>
                                             {snippet.placeholders.map((ph) => {
                                                 return (
                                                     <li
                                                         key={`${snippet.name}_${ph.needle}_value`}
                                                     >
-                                                        {ph.id}:
+                                                        <span>{ph.id}:</span>
                                                         {ph.multiline ? (
                                                             <>
                                                                 <br />

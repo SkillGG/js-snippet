@@ -1,6 +1,6 @@
 {
     "code": "const values = `##`.split(\",\");\nfor(let i = 0; i < `$$`.split(\",\"); i++){\n    const needle = `$$`.split(\",\")[i];\n    chapter.innerHTML = chapter.innerHTML.replace(new RegExp(needle,\"g\"), values[i]);\n}",
-    "name": "replaceMultiToOne",
+    "name": "replaceMultiple",
     "placeholders": [
         {
             "id": "Replace",

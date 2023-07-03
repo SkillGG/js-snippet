@@ -1,6 +1,17 @@
 {
-    "code": "{((chapter)=>{",
-    "name": "source_head",
-    "placeholders": [],
-    "overrideMode": "duplicate"
-}
+    "code": "if(sourceId === $$){",
+    "name": "sourceStart",
+    "placeholders": [
+     {
+      "id": "SourceID",
+      "multiline": false,
+      "needle": "$$",
+      "required": {
+       "patternString": "^\\d+$",
+       "default": "0"
+      }
+     }
+    ],
+    "overrideMode": "duplicate",
+    "errorCode": "{"
+   }

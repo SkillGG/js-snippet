@@ -28,13 +28,13 @@
         {
             "repoID": "master",
             "name": "source",
-            "link": "./snippets/source.snippet.json",
+            "link": "./snippets/source_end.snippet.json",
             "category": "LNReader"
         },
         {
             "repoID": "master",
             "name": "multisource",
-            "link": "./snippets/multisource.snippet.json",
+            "link": "./snippets/multisource_end.snippet.json",
             "category": "LNReader"
         }
     ]

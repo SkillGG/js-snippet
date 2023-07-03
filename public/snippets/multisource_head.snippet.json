@@ -1,6 +1,17 @@
 {
-    "code": "{((chapter)=>{if(!chapter)return;",
-    "name": "multisource_head",
-    "placeholders": [],
-    "overrideMode": "duplicate"
-}
+    "code": "if (\"$$\".split(\",\").find((id) => sourceId === parseInt(id))) {",
+    "name": "multisourceStart",
+    "placeholders": [
+     {
+      "id": "SourceIDs",
+      "multiline": false,
+      "needle": "$$",
+      "required": {
+       "patternString": "^(\\d+,)*(\\d+)$",
+       "default": "0,1"
+      }
+     }
+    ],
+    "overrideMode": "duplicate",
+    "errorCode": "{"
+   }

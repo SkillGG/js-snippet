@@ -1,0 +1,19 @@
+{
+    "code": "}",
+    "errorCode": "}",
+    "name": "multisourceEnd",
+    "placeholders": [],
+    "overrideMode": "duplicate",
+    "imports": [
+     {
+      "overrideMode": "overwrite",
+      "link": "./snippets/LNReader.snippet.json",
+      "linkType": "none"
+     },
+     {
+      "overrideMode": "duplicate",
+      "link": "./snippets/multisource_head.snippet.json",
+      "linkType": "both"
+     }
+    ]
+   }

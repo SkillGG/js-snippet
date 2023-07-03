@@ -151,3 +151,16 @@ a.no-underline {
     top: 0;
     padding: 1px;
 }
+
+ul:not(#settings) li {
+    display: flex;
+    flex-direction: row;
+    width: 90%;
+    margin-top: 5px;
+}
+
+ul:not(#settings) li input {
+    display: block;
+    margin-left: auto;
+    max-width: 50%;
+}

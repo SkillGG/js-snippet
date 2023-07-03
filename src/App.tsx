@@ -33,6 +33,7 @@ function App() {
                             .replace(/!(\/)B!/g, "<$1b")
                             .replace(/{B}/g, ">")
                             .replace(/\n/g, "<br/>")
+                            .replace(/ {4}/g, "\t")
                             .replace(/\t/g, "&emsp;"),
                     }}
                 ></div>

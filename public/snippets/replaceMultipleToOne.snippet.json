@@ -1,6 +1,6 @@
 {
-    "code": "for(const needle of `$$`.split(\"|\")){\n    chapter.innerHTML = chapter.innerHTML.replace(new RegExp(needle,\"g\"), \"##\");\n}",
-    "name": "replaceMultiToOne",
+    "code": "for(const needle of `$$`.split(\"|\")){\n\tchapter.innerHTML = chapter.innerHTML.replace(new RegExp(needle,\"g\"), \"##\");\n}",
+    "name": "replaceMultipleToOne",
     "placeholders": [
         {
             "id": "Replace",
