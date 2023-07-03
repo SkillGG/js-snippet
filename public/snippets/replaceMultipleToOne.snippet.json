@@ -20,7 +20,7 @@
             }
         },
         {
-            "id": "RegexFlags",
+            "id": "Flags",
             "multiline": false,
             "needle": "#$#",
             "required": {

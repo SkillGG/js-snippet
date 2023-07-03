@@ -1,5 +1,5 @@
 {
-    "code": "chapter.innerHTML = chapter.innerHTML.replace(/$$/, \"##\");",
+    "code": "chapter.innerHTML = chapter.innerHTML.replace(/$$/$#$, \"##\");",
     "name": "replaceSingle",
     "placeholders": [
         {
@@ -7,8 +7,8 @@
             "needle": "$$",
             "multiline": false,
             "required": {
-                "patternString": "^[^\\r\\n\\t\\f\\v]*$",
-                "default": "^.*$"
+                "default": "^.*$",
+                "patternString": "^[^\\r\\n\\t\\f\\v]*$"
             }
         },
         {
@@ -18,14 +18,23 @@
             "required": {
                 "patternString": "^[^\\r\\n\\t\\f\\v]*$"
             }
+        },
+        {
+            "id": "Flags",
+            "multiline": false,
+            "needle": "$#$",
+            "required": {
+                "patternString": "^[gi]+$",
+                "default": "g"
+            }
         }
     ],
     "overrideMode": "duplicate",
     "imports": [
         {
             "overrideMode": "overwrite",
-            "linkType": "dependson",
-            "link": "./snippets/LNReader.snippet.json"
+            "link": "./snippets/LNReader.snippet.json",
+            "linkType": "dependson"
         }
     ]
 }
