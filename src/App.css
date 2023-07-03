@@ -152,14 +152,15 @@ a.no-underline {
     padding: 1px;
 }
 
-ul:not(#settings) li {
+#placeholderValues li {
     display: flex;
     flex-direction: row;
     width: 90%;
     margin-top: 5px;
+    max-width: 300px;
 }
 
-ul:not(#settings) li input {
+#placeholderValues li input {
     display: block;
     margin-left: auto;
     max-width: 50%;

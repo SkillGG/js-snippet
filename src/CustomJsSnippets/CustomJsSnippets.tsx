@@ -851,7 +851,7 @@ const CustomJSSnippets: FC<CustomJSSnippetsProps> = ({ setJS }) => {
                                     .length > 0 && (
                                     <h4>
                                         Variables:
-                                        <ul>
+                                        <ul id="placeholderValues">
                                             {snippet.placeholders.map((ph) => {
                                                 return (
                                                     <li
