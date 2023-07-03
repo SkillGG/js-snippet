@@ -1,5 +1,5 @@
 {
-    "code": "const values = `##`.split(\",\");\nfor(let i = 0; i < `$$`.split(\",\"); i++){\n    const needle = `$$`.split(\",\")[i];\n    chapter.innerHTML = chapter.innerHTML.replace(new RegExp(needle,\"g\"), values[i]);\n}",
+    "code": "{\n    const values = `##`.split(\",\");\n    for(let i = 0; i < `$$`.split(\",\"); i++){\n        const needle = `$$`.split(\",\")[i];\n        chapter.innerHTML = chapter.innerHTML.replace(new RegExp(needle,\"#$#\"), values[i]);\n    }\n}",
     "name": "replaceMultiple",
     "placeholders": [
         {
@@ -7,8 +7,8 @@
             "needle": "$$",
             "multiline": false,
             "required": {
-                "patternString": "^([^\\,]+\\,)*([^\\,]+)$",
-                "default": "a,b,c"
+                "default": "a,b,c",
+                "patternString": "^([^\\,]+\\,)*([^\\,]+)$"
             }
         },
         {
@@ -16,8 +16,17 @@
             "needle": "##",
             "multiline": false,
             "required": {
-                "patternString": "^([^\\,]+\\,)*([^\\,]+)$",
-                "default": "d,e,f"
+                "default": "d,e,f",
+                "patternString": "^([^\\,]+\\,)*([^\\,]+)$"
+            }
+        },
+        {
+            "id": "Flags",
+            "multiline": false,
+            "needle": "#$#",
+            "required": {
+                "patternString": "^[gi]+$",
+                "default": "g"
             }
         }
     ],

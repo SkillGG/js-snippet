@@ -230,9 +230,12 @@ const CustomJSSnippets: FC<CustomJSSnippetsProps> = ({ setJS }) => {
                               snip.errorCode || ""
                           )
                         : snip.code;
+                function escapeRegExp(str: string) {
+                    return str.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"); // $& means the whole matched string
+                }
                 snip.placeholders.forEach((ph) => {
                     snipCode = snipCode.replace(
-                        ph.needle,
+                        new RegExp(escapeRegExp(ph.needle), "g"),
                         placeholderValues?.[snip.name]?.[ph.id] ||
                             ph.required.default ||
                             ""
